@@ -3,8 +3,11 @@ Makefile.cfg
 
 # Binary
 build/
-theproject
+strace
 
 # clangd
 .cache/
 compile_commands.json
+
+# nvim
+.nfs*
