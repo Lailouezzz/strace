@@ -69,7 +69,7 @@ typedef struct strace_ctx_s {
 	/**
 	 * @brief Child PID
 	 */
-	pid_t		cpid;
+	pid_t		pid;
 
 	/**
 	 * @brief Child last waitpid(?, &cstatus)

@@ -19,6 +19,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <stdarg.h>
+#include <limits.h>
 #include <errno.h>
 #include <getopt.h>
 #include "runner.h"
@@ -43,6 +44,7 @@ strace_ctx_t	g_ctx = { 0 };
 static struct option long_opt[] = {
 	{"summary-only", no_argument, 0, 'c'},
 	{"summary", no_argument, 0, 'C'},
+	{"pid", required_argument, 0, 'p'},
 	{"help", no_argument, 0, 'h'},
 	{"verbose", no_argument, 0, 'v'},
 	{ 0, 0, 0, 0 },
@@ -80,26 +82,26 @@ int	strace_init(
 	g_ctx.pn = *argv;
 	g_ctx.print_syscalls = true;
 	g_ctx.envp = envp;
-	g_ctx.cpid = -1;
+	g_ctx.pid = -1;
 	_strace_init_parse_args(argc, argv);
 	return (0);
 }
 
 void	strace_run(void) {
-	g_ctx.cpid = runner_spawn_child(g_ctx.cargv, g_ctx.envp);
-	if (g_ctx.cpid < 0)
+	g_ctx.pid = runner_spawn_child(g_ctx.cargv, g_ctx.envp);
+	if (g_ctx.pid < 0)
 		strace_terminate(EXIT_FAILURE);
-	verbose("Child pid: %d\n", g_ctx.cpid);
-	if (tracer_attach(g_ctx.cpid) == -1)
+	verbose("Child pid: %d\n", g_ctx.pid);
+	if (tracer_attach(g_ctx.pid) == -1)
 		strace_terminate(EXIT_FAILURE);
-	verbose("Pid: %d attached\nStarting tracer loop\n", g_ctx.cpid);
+	verbose("Pid: %d attached\nStarting tracer loop\n", g_ctx.pid);
 	if (tracer_loop() == -1)
 		strace_terminate(EXIT_FAILURE);
 }
 
 void	strace_cleanup(void) {
-	if (g_ctx.cpid != -1 && kill(g_ctx.cpid, SIGKILL) == -1 && errno != ESRCH)
-		perror_msg("kill(%d, SIGKILL)", g_ctx.cpid);
+	if (g_ctx.pid != -1 && kill(g_ctx.pid, SIGKILL) == -1 && errno != ESRCH)
+		perror_msg("kill(%d, SIGKILL)", g_ctx.pid);
 }
 
 noreturn void	strace_terminate(
@@ -119,11 +121,13 @@ static void	_strace_init_parse_args(
 				int argc,
 				char **argv
 				) {
-	int	opt;
-	bool summary_only_flag = false;
-	bool summary_flag = false;
+	int		opt;
+	long	n;
+	char	*endptr;
+	bool	summary_only_flag = false;
+	bool	summary_flag = false;
 
-	while ((opt = getopt_long(argc, argv, "cChv", long_opt, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "cCp:hv", long_opt, NULL)) != -1) {
 		switch (opt) {
 			case 'c':
 				g_ctx.print_syscalls = false;
@@ -134,6 +138,14 @@ static void	_strace_init_parse_args(
 				g_ctx.print_summary = true;
 				g_ctx.print_syscalls = true;
 				summary_flag = true;
+				break;
+			case 'p':
+				n = strtoul(optarg, &endptr, 10);
+				if (errno == ERANGE || n >= INT_MAX || n <= 0 || *endptr != '\0') {
+					error_msg("Invalid process id: '%s'", optarg);
+					strace_terminate(EXIT_FAILURE);
+				}
+				g_ctx.pid = (pid_t)n;
 				break;
 			case 'h':
 				_strace_usage();
@@ -156,7 +168,7 @@ static void	_strace_init_parse_args(
 
 	g_ctx.cargc = argc - optind;
 	g_ctx.cargv = argv + optind;
-	if (g_ctx.cargc == 0) {
+	if (g_ctx.cargc == 0 && g_ctx.pid == -1) {
 		error_msg("must have PROG [ARGS]");
 		fprintf(stderr, "Try '%s -h' for more information.\n", g_ctx.pn);
 		strace_terminate(EXIT_FAILURE);
@@ -172,6 +184,8 @@ Statistics:\n\
                  count time, calls and errors for each syscall and report\n\
                  summary\n\
   -C, --summary  like -c, but also print the regular output\n\
+  -p PID, --pid PID\n\
+                 attach to PID, ignored if PROG is present\n\
   -h, --help     print this message\n\
   -v, --verbose  print debug message\n", g_ctx.pn, g_ctx.pn);
 }
