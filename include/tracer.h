@@ -5,6 +5,7 @@
 // Includes
 // ---
 
+#include <stdbool.h>
 #include <sys/types.h>
 
 // ---
@@ -27,10 +28,12 @@
  * @brief Attach to desired pid
  *
  * @param pid
+ * @param wait_sigstop
  * @return -1 error 0 if attach success
  */
 int	tracer_attach(
-		pid_t pid
+		pid_t pid,
+		bool wait_sigstop
 		);
 
 /**

@@ -80,20 +80,22 @@ char	*search_exec(
 	char	*spath;
 	char	*envpath_copy;
 
+	if (s == NULL)
+		return (NULL);
 	if (envpath == NULL || (envpath_copy = strdup(envpath)) == NULL)
 		return (strdup(s));
 	if (strchr(s, '/') != NULL)
-		return (strdup(s));
+		return (free(envpath_copy), strdup(s));
 	for (char *path = strtok(envpath_copy, ":"); path != NULL; path = strtok(NULL, ":")) {
 		spath = malloc((strlen(s) + strlen(path) + 2) * sizeof(char));
 		strcpy(spath, path);
 		strcat(spath, "/");
 		strcat(spath, s);
 		if (_search_exec_exist(spath))
-			return (spath);
+			return (free(envpath_copy), spath);
 		free(spath);
 	}
-	return (strdup(s));
+	return (free(envpath_copy), strdup(s));
 }
 
 // ---

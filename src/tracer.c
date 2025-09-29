@@ -43,13 +43,14 @@ static int	_tracer_attach_wait(
 // ---
 
 int	tracer_attach(
-		pid_t pid
+		pid_t pid,
+		bool wait_sigstop
 		) {
 	_pid = pid;
 
 	if (ptrace(PTRACE_SEIZE, pid, NULL, PTRACE_O_TRACESYSGOOD) == -1)
-		return (perror_msg("ptrace(PTRACE_SEIZE)"), -1);
-	if (_tracer_attach_wait(pid) == -1)
+		return (perror_msg("attach: ptrace(PTRACE_SEIZE)"), -1);
+	if (wait_sigstop && _tracer_attach_wait(pid) == -1)
 		return (-1);
 	return (0);
 }
@@ -70,6 +71,7 @@ int	tracer_loop(void) {
 			if ((sig & 0x7f) == SIGTRAP) {
 				if ((sig & 0x80) == 0) // Not a syscall trap
 					continue ;
+				verbose("Syscall called\n");
 				sig = 0;
 			}
 		}
@@ -90,7 +92,6 @@ static int	_tracer_attach_wait(
 		return (error_msg("Desired pid %d is terminated", pid), -1);
 	if (!WIFSTOPPED(g_ctx.cstatus) || WSTOPSIG(g_ctx.cstatus) != SIGSTOP) {
 		error_msg("Desired pid %d wasn't stopped by SIGSTOP (%d)", pid, WSTOPSIG(g_ctx.cstatus));
-		kill(pid, SIGKILL);
 		return (-1);
 	}
 	return (0);

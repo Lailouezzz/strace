@@ -44,11 +44,11 @@ pid_t	runner_spawn_child(
 		return (-1);
 	if (stat(exec_path, &st) == -1) {
 		error_msg("Can't stat '%s': %s", exec_path, strerror(errno));
-		return (-1);
+		return (free(exec_path), -1);
 	}
 	if ((cpid = fork()) < 0) {
 		perror_msg("fork()");
-		return (-1);
+		return (free(exec_path), -1);
 	} else if (cpid == 0)
 		_runner_child_entry(exec_path, cargv, cenvp);
 	free(exec_path);

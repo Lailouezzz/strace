@@ -88,11 +88,16 @@ int	strace_init(
 }
 
 void	strace_run(void) {
-	g_ctx.pid = runner_spawn_child(g_ctx.cargv, g_ctx.envp);
+	bool child_spawned = false;
+
+	if (g_ctx.pid == -1 || g_ctx.cargc != 0) {
+		g_ctx.pid = runner_spawn_child(g_ctx.cargv, g_ctx.envp);
+		child_spawned = true;
+	}
 	if (g_ctx.pid < 0)
 		strace_terminate(EXIT_FAILURE);
-	verbose("Child pid: %d\n", g_ctx.pid);
-	if (tracer_attach(g_ctx.pid) == -1)
+	verbose("Target pid: %d\n", g_ctx.pid);
+	if (tracer_attach(g_ctx.pid, child_spawned) == -1)
 		strace_terminate(EXIT_FAILURE);
 	verbose("Pid: %d attached\nStarting tracer loop\n", g_ctx.pid);
 	if (tracer_loop() == -1)
@@ -100,7 +105,7 @@ void	strace_run(void) {
 }
 
 void	strace_cleanup(void) {
-	if (g_ctx.pid != -1 && kill(g_ctx.pid, SIGKILL) == -1 && errno != ESRCH)
+	if (g_ctx.pid != -1 && g_ctx.cargc != 0 && kill(g_ctx.pid, SIGKILL) == -1 && errno != ESRCH)
 		perror_msg("kill(%d, SIGKILL)", g_ctx.pid);
 }
 
@@ -141,7 +146,7 @@ static void	_strace_init_parse_args(
 				break;
 			case 'p':
 				n = strtoul(optarg, &endptr, 10);
-				if (errno == ERANGE || n >= INT_MAX || n <= 0 || *endptr != '\0') {
+				if (errno == ERANGE || n > INT_MAX || n <= 0 || *endptr != '\0') {
 					error_msg("Invalid process id: '%s'", optarg);
 					strace_terminate(EXIT_FAILURE);
 				}

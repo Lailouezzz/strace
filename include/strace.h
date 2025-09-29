@@ -67,7 +67,7 @@ typedef struct strace_ctx_s {
 	bool		verbose;
 
 	/**
-	 * @brief Target PID, if -1 spawn child
+	 * @brief Target PID
 	 */
 	pid_t		pid;
 
