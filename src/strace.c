@@ -127,7 +127,7 @@ static void	_strace_init_parse_args(
 	bool	summary_only_flag = false;
 	bool	summary_flag = false;
 
-	while ((opt = getopt_long(argc, argv, "cCp:hv", long_opt, NULL)) != -1) {
+	while ((opt = getopt_long(argc, argv, "+cCp:hv", long_opt, NULL)) != -1) {
 		switch (opt) {
 			case 'c':
 				g_ctx.print_syscalls = false;
