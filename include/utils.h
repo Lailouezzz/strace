@@ -23,13 +23,8 @@
 // Defines
 // ---
 
-
-
-// ---
-// Typedefs
-// ---
-
-
+# define TRY(call) if ((call) < 0) { return (perror_msg(#call), -1); }
+# define ELEM_COUNT(container) (sizeof(container) / sizeof(*container))
 
 // ---
 // Function declartions

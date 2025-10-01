@@ -1,0 +1,20 @@
+# strace
+strace
+
+# Build/Doc
+build/
+doc/html
+doc/man
+
+# Buildsystem
+Makefile.cfg
+
+# env
+.git*
+.vscode/
+
+# doc
+doc/
+
+# Readme
+README.md

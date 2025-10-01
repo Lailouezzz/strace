@@ -67,7 +67,5 @@ static noreturn void	_runner_child_entry(
 	raise(SIGSTOP);
 	execve(exec_path, cargv, cenvp);
 	perror_msg("exec");
-	if (errno == EACCES)
-		_exit(126);
-	_exit(127);
+	_exit(EXIT_FAILURE);
 }

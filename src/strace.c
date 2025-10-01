@@ -105,8 +105,6 @@ void	strace_run(void) {
 }
 
 void	strace_cleanup(void) {
-	if (g_ctx.pid != -1 && g_ctx.cargc != 0 && kill(g_ctx.pid, SIGKILL) == -1 && errno != ESRCH)
-		perror_msg("kill(%d, SIGKILL)", g_ctx.pid);
 }
 
 noreturn void	strace_terminate(
