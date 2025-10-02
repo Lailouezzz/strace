@@ -5,14 +5,14 @@
 // Includes
 // ---
 
-#include <stdbool.h>
-#include "syscall.h"
+# include <stdbool.h>
+# include "syscall.h"
 
 // ---
 // Defines
 // ---
 
-
+# define LOGGER_PADDING (40)
 
 // ---
 // Typedefs
@@ -30,15 +30,24 @@
  * @param should_log 
  */
 void	logger_should_log_event(
-			bool should_log
+			bool should_log_event
 			);
 
-void	logger_log_syscall_in(
+void	logger_disabled(
+			bool disabled
+			);
+
+int	logger_log_syscall_in(
 			const syscall_info_t *sci
 			);
 
-void	logger_log_syscall_out(
-			const syscall_info_t *sci
+int	logger_log_syscall_out(
+			const syscall_info_t *sci,
+			int cur_write
+			);
+
+int	logger_log(
+			const char *fmt, ...
 			);
 
 #endif

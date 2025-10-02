@@ -2,14 +2,12 @@
 # define SYSCALL_DEFS_H
 
 // ---
-// Includes
-// ---
-
-# include "syscall.h"
-
-// ---
 // Typedefs
 // ---
+
+typedef struct syscall_def_s {
+	const char	*name;
+}	syscall_def_t;
 
 enum {
 SR_SYS_accept,

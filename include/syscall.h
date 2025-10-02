@@ -6,7 +6,9 @@
 // ---
 
 # include <stdint.h>
+# include <stdbool.h>
 # include <sys/types.h>
+# include"syscall_defs.h"
 
 // ---
 // Defines
@@ -17,10 +19,6 @@
 // ---
 // Typedefs
 // ---
-
-typedef struct syscall_def_s {
-	const char	*name;
-}	syscall_def_t;
 
 /**
  * @typedef syscall_info_s
@@ -48,7 +46,12 @@ typedef struct syscall_info_s {
 	 */
 	pid_t			pid;
 
+	/**
+	 * @brief Personality
+	 */
 	int				pers;
+
+	int				errnr;
 }	syscall_info_t;
 
 // ---

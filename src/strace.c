@@ -22,6 +22,7 @@
 #include <limits.h>
 #include <errno.h>
 #include <getopt.h>
+#include "logger.h"
 #include "runner.h"
 #include "tracer.h"
 #include "utils.h"
@@ -65,6 +66,11 @@ static void	_strace_init_parse_args(
 				char **argv
 				);
 
+static void	_strace_sig_handler(
+				int
+				sig
+				);
+
 /**
  * @brief Print the usage
  */
@@ -79,7 +85,16 @@ int	strace_init(
 			char **argv,
 			char **envp
 			) {
+	struct sigaction sa;
+
+	sa.sa_handler = _strace_sig_handler;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGQUIT, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
 	g_ctx.pn = *argv;
+	g_ctx.signaled = false;
 	g_ctx.print_syscalls = true;
 	g_ctx.envp = envp;
 	g_ctx.pid = -1;
@@ -94,6 +109,7 @@ void	strace_run(void) {
 		g_ctx.pid = runner_spawn_child(g_ctx.cargv, g_ctx.envp);
 		child_spawned = true;
 	}
+	logger_disabled(!g_ctx.print_syscalls);
 	if (g_ctx.pid < 0)
 		strace_terminate(EXIT_FAILURE);
 	verbose("Target pid: %d\n", g_ctx.pid);
@@ -102,9 +118,12 @@ void	strace_run(void) {
 	verbose("Pid: %d attached\nStarting tracer loop\n", g_ctx.pid);
 	if (tracer_loop() == -1)
 		strace_terminate(EXIT_FAILURE);
+	logger_disabled(false);
 }
 
 void	strace_cleanup(void) {
+	if (g_ctx.pid != -1 && !WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus))
+		error_msg("Process %d detached", g_ctx.pid);
 }
 
 noreturn void	strace_terminate(
@@ -191,4 +210,11 @@ Statistics:\n\
                  attach to PID, ignored if PROG is present\n\
   -h, --help     print this message\n\
   -v, --verbose  print debug message\n", g_ctx.pn, g_ctx.pn);
+}
+
+static void	_strace_sig_handler(
+				int sig
+				) {
+	UNUSED(sig);
+	g_ctx.signaled = true;
 }

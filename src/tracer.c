@@ -8,10 +8,12 @@
 // ---
 
 #include <stdlib.h>
+#include <asm-generic/errno-base.h>
 #include <sys/ptrace.h>
 #include <sys/wait.h>
 #include <sys/user.h>
 #include <sys/uio.h>
+#include <errno.h>
 #include <signal.h>
 #include <elf.h>
 #include "personality.h"
@@ -89,7 +91,7 @@ int	tracer_attach(
 int	tracer_loop(void) {
 	if (_pid < 0)
 		return (-1);
-	while (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus)) {
+	while (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus) && !g_ctx.signaled) {
 		if (ptrace(PTRACE_SYSCALL, _pid, NULL, _cont_sig) < 0)
 			return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
 		if (waitpid(_pid, &g_ctx.cstatus, __WALL) == -1)
@@ -132,7 +134,7 @@ static int	_tracer_handle_syscall(void) {
 	if (ptrace(PTRACE_SYSCALL, _pid, NULL, 0) < 0)
 		return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
 	if (waitpid(_pid, &g_ctx.cstatus, __WALL) == -1)
-		return (perror_msg("waitpid(%d)", _pid), -1);
+		return (errno == EINTR ? 0 : (perror_msg("waitpid(%d)", _pid), -1));
 	syscall_handle_out(_pid);
 	return (0);
 }

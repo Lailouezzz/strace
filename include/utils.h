@@ -24,7 +24,16 @@
 // ---
 
 # define TRY(call) if ((call) < 0) { return (perror_msg(#call), -1); }
+# define TRY_SILENT(call) if ((call) < 0) { return (-1); }
+# define MAX(a, b) ((a) > (b) ? (a) : (b))
 # define ELEM_COUNT(container) (sizeof(container) / sizeof(*container))
+# define UNUSED(var) ((void)var);
+
+/* extra errno */
+# define ERESTARTSYS           512
+# define ERESTARTNOINTR        513
+# define ERESTARTNOHAND        514
+# define ERESTART_RESTARTBLOCK 516
 
 // ---
 // Function declartions
@@ -50,6 +59,22 @@ void	perror_msg(const char *fmt, ...);
  * @param fmt 
  */
 void	verbose(const char *fmt, ...);
+
+/**
+ * @brief Int to errno name traduction
+ *
+ * @param err The errno
+ * @return "EINVAL" "EPERM" for example
+ */
+const char	*errno_name(int err);
+
+/**
+ * @brief Custom strerror, including ERESTART* errors
+ *
+ * @param err errno
+ * @return strerror() like
+ */
+const char	*kstrerror(int err);
 
 /**
  * @brief Search path to executable

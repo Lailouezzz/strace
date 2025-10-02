@@ -75,6 +75,11 @@ typedef struct strace_ctx_s {
 	 * @brief Child last waitpid(?, &cstatus)
 	 */
 	int			cstatus;
+
+	/**
+	 * @brief The strace process is signaled ?
+	 */
+	bool		signaled;
 }	strace_ctx_t;
 
 // ---

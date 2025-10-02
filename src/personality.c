@@ -59,6 +59,7 @@ int	pers_get_sci(
 	struct iovec	iov;
 	user_regs_t		user_regs;
 	int				sysnr;
+	int64_t			ret;
 
 	iov.iov_base = &user_regs;
 	iov.iov_len = sizeof(user_regs);
@@ -73,6 +74,11 @@ int	pers_get_sci(
 					(sci->pers == PERS_i386 ? _pers_sce_i386 : _pers_sce_x86_64)
 						[sysnr]
 				];
+	ret = (sci->pers == PERS_i386 ? (int32_t)sci->ret : (int64_t)sci->ret);
+	if (ret < 0 && ret > -0x1000)
+		sci->errnr = -ret;
+	else
+		sci->errnr = 0;
 	return (0);
 }
 

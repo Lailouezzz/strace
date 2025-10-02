@@ -20,6 +20,7 @@
 
 static int	_cur_pers = -1;
 static const syscall_def_t	*_cur_scd = NULL;
+static int	_cur_write = 0;
 
 // ---
 // Static function declarations
@@ -43,7 +44,7 @@ int	syscall_handle_in(
 	_syscall_handle_pers_change(sci.pers);
 	if (_cur_scd == &g_syscall_defs[SR_SYS_execve])
 		logger_should_log_event(true);
-	logger_log_syscall_in(&sci);
+	TRY(_cur_write = logger_log_syscall_in(&sci));
 	return (0);
 }
 
@@ -53,9 +54,9 @@ int	syscall_handle_out(
 	syscall_info_t	sci;
 
 	if (WIFEXITED(g_ctx.cstatus) || WIFSIGNALED(g_ctx.cstatus))
-		return (logger_log_syscall_out(NULL), 0);
+		return (logger_log_syscall_out(NULL, _cur_write), 0);
 	TRY(pers_get_sci(pid, &sci));
-	logger_log_syscall_out(&sci);
+	TRY(logger_log_syscall_out(&sci, _cur_write));
 	if ((int64_t)sci.ret < 0 && _cur_scd == &g_syscall_defs[SR_SYS_execve])
 		logger_should_log_event(false);
 	_syscall_handle_pers_change(sci.pers);
