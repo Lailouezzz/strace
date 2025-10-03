@@ -27,7 +27,8 @@ static int	_cur_write = 0;
 // ---
 
 static void	_syscall_handle_pers_change(
-				int new_pers
+				int new_pers,
+				pid_t pid
 				);
 
 // ---
@@ -35,31 +36,30 @@ static void	_syscall_handle_pers_change(
 // ---
 
 int	syscall_handle_in(
-		pid_t pid
+		pid_t pid,
+		syscall_info_t *sci
 		) {
-	syscall_info_t	sci = { 0 };
-
-	TRY(pers_get_sci(pid, &sci));
-	_cur_scd = sci.scd;
-	_syscall_handle_pers_change(sci.pers);
+	TRY(pers_get_sci(pid, sci));
+	_cur_scd = sci->scd;
+	_syscall_handle_pers_change(sci->pers, pid);
 	if (_cur_scd == &g_syscall_defs[SR_SYS_execve])
 		logger_should_log_event(true);
-	TRY(_cur_write = logger_log_syscall_in(&sci));
+	TRY(_cur_write = logger_log_syscall_in(sci));
 	return (0);
 }
 
 int	syscall_handle_out(
-		pid_t pid
+		pid_t pid,
+		syscall_info_t *sci
 		) {
-	syscall_info_t	sci;
-
 	if (WIFEXITED(g_ctx.cstatus) || WIFSIGNALED(g_ctx.cstatus))
 		return (logger_log_syscall_out(NULL, _cur_write), 0);
-	TRY(pers_get_sci(pid, &sci));
-	TRY(logger_log_syscall_out(&sci, _cur_write));
-	if ((int64_t)sci.ret < 0 && _cur_scd == &g_syscall_defs[SR_SYS_execve])
+	TRY(pers_get_sci(pid, sci));
+	sci->scd = _cur_scd;
+	TRY(logger_log_syscall_out(sci, _cur_write));
+	if (sci->errnr != 0 && _cur_scd == &g_syscall_defs[SR_SYS_execve])
 		logger_should_log_event(false);
-	_syscall_handle_pers_change(sci.pers);
+	_syscall_handle_pers_change(sci->pers, pid);
 	return (0);
 }
 
@@ -68,11 +68,12 @@ int	syscall_handle_out(
 // ---
 
 static void	_syscall_handle_pers_change(
-				int new_pers
+				int new_pers,
+				pid_t pid
 				) {
 	if (new_pers == _cur_pers)
 		return ;
 	if (_cur_pers != -1)
-		verbose("Changing mode to %s\n", pers_get_name(new_pers));
+		logger_log("[ Process PID=%d runs in %s mode. ]\n", pid, pers_get_name(new_pers));
 	_cur_pers = new_pers;
 }

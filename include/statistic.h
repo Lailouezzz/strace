@@ -6,6 +6,7 @@
 // ---
 
 # include <stdbool.h>
+# include "syscall.h"
 
 // ---
 // Defines
@@ -18,9 +19,8 @@
 // ---
 
 typedef struct	stat_entry_s {
-	long	time;
-	bool	is_error;
-	int		pers;
+	long			time;
+	syscall_info_t	sci;
 }	stat_entry_t;
 
 // ---
@@ -30,13 +30,22 @@ typedef struct	stat_entry_s {
 /**
  * @brief Init the statistics
  *
+ * @param should_save 
  * @return 
  */
-int		stat_init(void);
+int		stat_init(
+			bool should_save
+			);
 
 /**
  * @brief Cleanup the statistics
  */
 void	stat_cleanup(void);
+
+int		stat_add(
+			const stat_entry_t *se
+			);
+
+int		stat_print_summary(void);
 
 #endif

@@ -14,8 +14,6 @@
 // Defines
 // ---
 
-# define MAX_SYSCALL_ARG_COUNT (6)
-
 // ---
 // Typedefs
 // ---

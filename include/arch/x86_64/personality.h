@@ -13,6 +13,8 @@
 // Defines
 // ---
 
+# define SCI_REG_SIZE(sci) ((sci).pers == PERS_i386 ? 4 : 8)
+
 // ---
 // Typedefs
 // ---

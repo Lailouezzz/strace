@@ -5,7 +5,9 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
+#include <signal.h>
 #include "utils.h"
+#include "log_funcs.h"
 
 #include "logger.h"
 
@@ -56,7 +58,9 @@ int	logger_log_syscall_in(
 	memcpy(_saved_args, sci->args, sizeof(_saved_args));
 	TRY_SILENT(tmp = fprintf(stderr, "%s(", sci->scd->name));
 	ret += tmp;
-	/* TODO: print in args */
+	TRY_SILENT(tmp = logger_log_args(sci, sci->args, true));
+	ret += tmp;
+	fflush(stderr);
 	return (ret);
 }
 
@@ -69,7 +73,8 @@ int	logger_log_syscall_out(
 
 	if (!SHOULD_LOG_EVENT)
 		return (0);
-	/* TODO: print out args */
+	TRY_SILENT(tmp = logger_log_args(sci, _saved_args, false));
+	ret += tmp;
 	TRY_SILENT(tmp = fprintf(stderr, ")%*s", MAX(LOGGER_PADDING - ret - 2, 0), ""));
 	ret += tmp;
 	if (sci == NULL) {
@@ -86,7 +91,7 @@ int	logger_log_syscall_out(
 				TRY_SILENT(tmp = fprintf(stderr, " = ?"));
 				ret += tmp;
 				break;
-			default:
+		default:
 				TRY_SILENT(tmp = fprintf(stderr, " = -1"));
 				ret += tmp;
 		}
@@ -94,9 +99,25 @@ int	logger_log_syscall_out(
 		ret += tmp;
 	}
 	else {
-		TRY_SILENT(tmp = fprintf(stderr, " = %ld\n", sci->ret));
+		TRY_SILENT(tmp = fprintf(stderr, " = "));
+		ret += tmp;
+		TRY_SILENT(tmp = logger_log_return(sci));
+		ret += tmp;
+		TRY_SILENT(tmp = fprintf(stderr, "\n"));
 		ret += tmp;
 	}
+	return (ret);
+}
+
+int	logger_log_event(const char *fmt, ...) {
+	va_list	args;
+	int		ret;
+
+	if (!SHOULD_LOG_EVENT)
+		return (0);
+	va_start(args, fmt);
+	ret = vfprintf(stderr, fmt, args);
+	va_end(args);
 	return (ret);
 }
 
@@ -107,6 +128,83 @@ int	logger_log(const char *fmt, ...) {
 	va_start(args, fmt);
 	ret = vfprintf(stderr, fmt, args);
 	va_end(args);
+	return (ret);
+}
+
+int	logger_log_args(
+		const syscall_info_t *sci,
+		const uint64_t args[MAX_SYSCALL_ARG_COUNT],
+		bool syscall_in
+		) {
+	int	begin;
+	int	end;
+	int	ret;
+	int	tmp;
+	log_func_t	log_func;
+
+	if (sci == NULL)
+		return (0);
+	begin = 0;
+	end = MAX_SYSCALL_ARG_COUNT - 1;
+	for (int k = 0; k < MAX_SYSCALL_ARG_COUNT; ++k) {
+		if ((int)sci->scd->arg_types[k] > 0) {
+			*(syscall_in ? &end : &begin) = k;
+			break ;
+		}
+	}
+	ret = 0;
+	for (int k = begin; k < end && sci->scd->arg_types[k] != SYS_TYPE_NONE; ++k) {
+		log_func = g_log_funcs[ABS((int)sci->scd->arg_types[k])];
+		if (log_func != NULL) {
+			TRY_SILENT(tmp = log_func(args[k], sci));
+		}
+		else {
+			TRY_SILENT(tmp = LOG_FUNC_DEFAULT(args[k], sci));
+		}
+		ret += tmp;
+		if (k != MAX_SYSCALL_ARG_COUNT - 1 && sci->scd->arg_types[k + 1] != SYS_TYPE_NONE) {
+			TRY_SILENT(tmp = fprintf(stderr, ", "));
+			ret += tmp;
+		}
+	}
+	return (ret);
+}
+
+int	logger_log_return(
+		const syscall_info_t *sci
+		) {
+	log_func_t	log_func;
+
+	log_func = g_log_funcs[ABS((int)sci->scd->ret_type)];
+	if (log_func != NULL)
+		return (log_func(sci->ret, sci));
+	else
+		return (LOG_FUNC_DEFAULT(sci->ret, sci));
+}
+
+int	logger_log_signal(
+		int pid,
+		const siginfo_t *si
+		) {
+	UNUSED(pid);
+	int	ret = 0;
+	int	tmp;
+
+	TRY_SILENT(tmp = logger_log_event("--- %s {si_signo=%s si_code=%d",
+										signal_name(si->si_signo),
+										signal_name(si->si_signo),
+										si->si_code));
+	ret += tmp;
+	switch (si->si_signo) {
+		case SIGSEGV:
+			TRY_SILENT(tmp = logger_log_event(" si_addr=%p", si->si_addr));
+			break ;
+		default:
+			break ;
+	}
+	ret += tmp;
+	TRY_SILENT(tmp = logger_log_event("} ---\n"));
+	ret += tmp;
 	return (ret);
 }
 

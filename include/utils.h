@@ -26,6 +26,7 @@
 # define TRY(call) if ((call) < 0) { return (perror_msg(#call), -1); }
 # define TRY_SILENT(call) if ((call) < 0) { return (-1); }
 # define MAX(a, b) ((a) > (b) ? (a) : (b))
+# define ABS(a) (((a) < 0) ? (-(a)) : (a))
 # define ELEM_COUNT(container) (sizeof(container) / sizeof(*container))
 # define UNUSED(var) ((void)var);
 
@@ -75,6 +76,14 @@ const char	*errno_name(int err);
  * @return strerror() like
  */
 const char	*kstrerror(int err);
+
+/**
+ * @brief Convert signo to the signo string
+ *
+ * @param signo 
+ * @return "SIGINT" "SIGQUIT" for example
+ */
+const char	*signal_name(int signo);
 
 /**
  * @brief Search path to executable

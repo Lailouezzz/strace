@@ -6,6 +6,7 @@
 // ---
 
 #include <sys/types.h>
+#include "syscall.h"
 
 // ---
 // Defines
@@ -24,11 +25,13 @@
 // ---
 
 int	syscall_handle_in(
-		pid_t pid
+		pid_t pid,
+		syscall_info_t *sci
 		);
 
 int	syscall_handle_out(
-		pid_t pid
+		pid_t pid,
+		syscall_info_t *sci
 		);
 
 #endif

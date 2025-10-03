@@ -77,9 +77,9 @@ typedef struct strace_ctx_s {
 	int			cstatus;
 
 	/**
-	 * @brief The strace process is signaled ?
+	 * @brief The strace process is signaled by a signal ?
 	 */
-	bool		signaled;
+	int			signal;
 }	strace_ctx_t;
 
 // ---

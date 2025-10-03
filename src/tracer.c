@@ -16,8 +16,9 @@
 #include <errno.h>
 #include <signal.h>
 #include <elf.h>
-#include "personality.h"
-#include "regs.h"
+#include <time.h>
+#include "logger.h"
+#include "statistic.h"
 #include "strace.h"
 #include "syscall_handler.h"
 #include "utils.h"
@@ -91,7 +92,7 @@ int	tracer_attach(
 int	tracer_loop(void) {
 	if (_pid < 0)
 		return (-1);
-	while (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus) && !g_ctx.signaled) {
+	while (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus) && g_ctx.signal == 0) {
 		if (ptrace(PTRACE_SYSCALL, _pid, NULL, _cont_sig) < 0)
 			return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
 		if (waitpid(_pid, &g_ctx.cstatus, __WALL) == -1)
@@ -130,20 +131,42 @@ static int	_tracer_attach_wait(
 }
 
 static int	_tracer_handle_syscall(void) {
-	syscall_handle_in(_pid);
+	struct timespec	start;
+	struct timespec	end;
+	syscall_info_t	sci;
+	stat_entry_t	stat;
+
+	syscall_handle_in(_pid, &sci);
+	clock_gettime(CLOCK_MONOTONIC, &start);
 	if (ptrace(PTRACE_SYSCALL, _pid, NULL, 0) < 0)
 		return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
 	if (waitpid(_pid, &g_ctx.cstatus, __WALL) == -1)
 		return (errno == EINTR ? 0 : (perror_msg("waitpid(%d)", _pid), -1));
-	syscall_handle_out(_pid);
+	clock_gettime(CLOCK_MONOTONIC, &end);
+	stat.time = ((end.tv_sec - start.tv_sec) * 1e6) + ((end.tv_nsec - start.tv_nsec) / 1e3);
+	syscall_handle_out(_pid, &sci);
+	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus)) {
+		stat.sci = sci;
+		TRY(stat_add(&stat));
+	}
 	return (0);
 }
 
 static void	_tracer_handle_exit(void) {
 	if (WIFEXITED(g_ctx.cstatus))
-		verbose("+++ exited with %d +++\n", WEXITSTATUS(g_ctx.cstatus));
-	else if (WIFSIGNALED(g_ctx.cstatus))
-		verbose("+++ killed by %d +++\n", WTERMSIG(g_ctx.cstatus));
+		logger_log_event("+++ exited with %d +++\n", WEXITSTATUS(g_ctx.cstatus));
+	else if (WIFSIGNALED(g_ctx.cstatus)) {
+		logger_log_event("+++ killed by %s", signal_name(WTERMSIG(g_ctx.cstatus)));
+		switch (WTERMSIG(g_ctx.cstatus)) {
+			case SIGSEGV:
+			case SIGQUIT:
+				logger_log_event(" (core dumped)");
+				break ;
+			default:
+				break ;
+		}
+		logger_log_event(" +++\n");
+	}
 }
 
 static int _tracer_handle_sig(void) {
@@ -154,7 +177,7 @@ static int _tracer_handle_sig(void) {
 	if (WIFSTOPPED(g_ctx.cstatus)) {
 		if (siginfo.si_signo == SIGTRAP)
 			_cont_sig = 0;
-		verbose("SIGNAL: %d\n", siginfo.si_signo);
+		logger_log_signal(_pid, &siginfo);
 	}
 	return (0);
 }

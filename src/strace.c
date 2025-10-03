@@ -24,6 +24,7 @@
 #include <getopt.h>
 #include "logger.h"
 #include "runner.h"
+#include "statistic.h"
 #include "tracer.h"
 #include "utils.h"
 
@@ -94,12 +95,12 @@ int	strace_init(
 	sigaction(SIGQUIT, &sa, NULL);
 	sigaction(SIGTERM, &sa, NULL);
 	g_ctx.pn = *argv;
-	g_ctx.signaled = false;
+	g_ctx.signal = 0;
 	g_ctx.print_syscalls = true;
 	g_ctx.envp = envp;
 	g_ctx.pid = -1;
 	_strace_init_parse_args(argc, argv);
-	return (0);
+	return (stat_init(g_ctx.print_summary));
 }
 
 void	strace_run(void) {
@@ -119,11 +120,22 @@ void	strace_run(void) {
 	if (tracer_loop() == -1)
 		strace_terminate(EXIT_FAILURE);
 	logger_disabled(false);
+	if (g_ctx.print_summary)
+		stat_print_summary();
 }
 
 void	strace_cleanup(void) {
+	struct sigaction sa;
+
+	sa.sa_handler = SIG_DFL;
+	sigemptyset(&sa.sa_mask);
+	sa.sa_flags = 0;
+	sigaction(SIGINT, &sa, NULL);
+	sigaction(SIGQUIT, &sa, NULL);
+	sigaction(SIGTERM, &sa, NULL);
 	if (g_ctx.pid != -1 && !WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus))
 		error_msg("Process %d detached", g_ctx.pid);
+	stat_cleanup();
 }
 
 noreturn void	strace_terminate(
@@ -131,6 +143,12 @@ noreturn void	strace_terminate(
 					) {
 	verbose("strace terminate code: %d\n", status_code);
 	strace_cleanup();
+	if (WIFSIGNALED(g_ctx.cstatus))
+		raise(WTERMSIG(g_ctx.cstatus));
+	else if (g_ctx.signal != 0) {
+		kill(g_ctx.pid, g_ctx.signal);
+		raise(g_ctx.signal);
+	}
 	exit(status_code);
 }
 
@@ -215,6 +233,5 @@ Statistics:\n\
 static void	_strace_sig_handler(
 				int sig
 				) {
-	UNUSED(sig);
-	g_ctx.signaled = true;
+	g_ctx.signal = sig;
 }

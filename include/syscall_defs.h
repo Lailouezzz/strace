@@ -1,12 +1,32 @@
 #ifndef  SYSCALL_DEFS_H
 # define SYSCALL_DEFS_H
+// ---
+// Define
+// ---
+
+# define MAX_SYSCALL_ARG_COUNT (6)
 
 // ---
 // Typedefs
 // ---
 
+typedef enum syscall_type_e {
+	SYS_TYPE_NONE = 0,
+	SYS_TYPE_INT,
+	SYS_TYPE_SIGNED_INT,
+	SYS_TYPE_HEX,
+	SYS_TYPE_PTR,
+	SYS_TYPE_STRING,
+	SYS_TYPE_MEMSEG,
+	SYS_TYPE_OPEN_FLAGS,
+	SYS_TYPE_OPEN_MODE,
+	SYS_TYPE__COUNT
+}	syscall_type_t;
+
 typedef struct syscall_def_s {
-	const char	*name;
+	const char			*name;
+	syscall_type_t		ret_type;
+	syscall_type_t		arg_types[MAX_SYSCALL_ARG_COUNT];
 }	syscall_def_t;
 
 enum {
