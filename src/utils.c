@@ -285,7 +285,7 @@ char	*search_exec(
 			return (free(envpath_copy), spath);
 		free(spath);
 	}
-	return (free(envpath_copy), strdup(s));
+	return (free(envpath_copy), strdup(""));
 }
 
 const char	*errno_name(int err) {

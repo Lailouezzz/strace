@@ -43,7 +43,7 @@ pid_t	runner_spawn_child(
 	if (exec_path == NULL)
 		return (-1);
 	if (stat(exec_path, &st) == -1) {
-		error_msg("Can't stat '%s': %s", exec_path, strerror(errno));
+		error_msg("Can't stat %s': %s", *cargv, strerror(errno));
 		return (free(exec_path), -1);
 	}
 	if ((cpid = fork()) < 0) {

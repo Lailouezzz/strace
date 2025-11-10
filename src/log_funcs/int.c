@@ -2,7 +2,6 @@
 // Includes
 // ---
 
-#include <stdio.h>
 #include "utils.h"
 
 #include "log_funcs.h"
