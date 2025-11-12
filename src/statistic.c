@@ -16,13 +16,18 @@
 #define BREAK_SHOULD_SAVE if (!_should_save) {return (0);}
 
 // ---
+// Typedef
+// ---
+
+TYPEDEF_LIST(stat_entry_t, list_stat);
+
+// ---
 // Local variable
 // ---
 
-static stat_entry_t	*_stats = NULL;
-static size_t		_stats_len = 0;
-static size_t		_stats_alloced = 0;
-static bool			_should_save = false;
+static list_stat_t			_stats[ELEM_COUNT(g_syscall_defs)] = { 0 };
+static size_t				_stats_len = 0;
+static bool					_should_save = false;
 
 // ---
 // Static function declarations
@@ -41,17 +46,15 @@ int	stat_init(
 	_should_save = should_save;
 	BREAK_SHOULD_SAVE;
 
-	_stats = malloc(sizeof(*_stats));
-	if (_stats == NULL)
-		return (perror_msg("malloc()"), -1);
-	_stats_alloced = 1;
 	return (0);
 }
 
 void	stat_cleanup(void) {
-	if (_stats != NULL)
-		free(_stats);
-	_stats = NULL;
+	list_stat_t	*sc_stats;
+
+	array_foreach(_stats, sc_stats) {
+		list_free(sc_stats);
+	}
 }
 
 int		stat_add(
@@ -59,14 +62,7 @@ int		stat_add(
 			) {
 	BREAK_SHOULD_SAVE;
 
-	if (_stats_len >= _stats_alloced) {
-		_stats = realloc(_stats, sizeof(*_stats) * (_stats_alloced << 1));
-		if (_stats == NULL)
-			return (perror_msg("realloc()"), -1);
-		_stats_alloced <<= 1;
-	}
-	_stats[_stats_len++] = *se;
-	return (0);
+	return (list_push(&_stats[SCD_INDEX(se->sci.scd)], *se) ? 0 : -1);
 }
 
 int	stat_print_summary(void) {

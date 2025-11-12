@@ -17,11 +17,51 @@
 // Includes
 // ---
 
-
+# include <stddef.h>
+# include <stdlib.h>
+# include <string.h>
+# include <stdbool.h>
 
 // ---
 // Defines
 // ---
+
+# define list(T) struct { T *data; size_t cap; size_t len; }
+# define TYPEDEF_LIST(T, name) typedef list(T) name##_t
+
+# define list_new() { .data = NULL, .cap = 0, .len = 0 }
+# define list_free(l) do { \
+	if ((l)->data != NULL) free((l)->data); \
+	(l)->data = NULL; \
+	(l)->cap = 0; \
+	(l)->len = 0; \
+} while (0)
+
+# define list_reserve(l, capacity) ({ \
+	void *__tmp = realloc((l)->data, (capacity) * sizeof(*(l)->data)); \
+	if (__tmp != NULL) { \
+		(l)->data = __tmp; \
+		(l)->cap = (capacity); \
+	} \
+	(__tmp != NULL); \
+	})
+
+# define list_push(l, v) ({ \
+	bool _success = true; \
+	if ((l)->len >= (l)->cap) { \
+		_success = list_reserve(l, (l)->cap != 0 ? (l)->cap << 1 : 8); \
+	} \
+	if (_success) { \
+		(l)->data[(l)->len++] = (v); \
+	} \
+	_success; \
+	})
+
+# define list_foreach(l, it) \
+	for (size_t _i = 0; _i < (l)->len && ((it) = &(l)->data[_i], 1); _i++)
+
+# define array_foreach(array, it) \
+	for (size_t _i = 0; _i < ELEM_COUNT(array) && ((it) = &(array)[_i], 1); _i++)
 
 # define TRY(call) if ((call) < 0) { return (perror_msg(#call), -1); }
 # define TRY_SILENT(call) if ((call) < 0) { return (-1); }

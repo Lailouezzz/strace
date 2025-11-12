@@ -482,7 +482,7 @@ SR_SYS_writev,
 // ---
 // Global variable
 // ---
-
-extern const syscall_def_t	g_syscall_defs[];
+# define SCD_INDEX(ptr) ((ptr) - g_syscall_defs)
+extern const syscall_def_t	g_syscall_defs[447];
 
 #endif
