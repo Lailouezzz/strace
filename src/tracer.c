@@ -13,6 +13,8 @@
 #include <sys/wait.h>
 #include <sys/user.h>
 #include <sys/uio.h>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include <errno.h>
 #include <signal.h>
 #include <elf.h>
@@ -56,9 +58,12 @@ static int	_tracer_attach_wait(
 /**
  * @brief Handle the current syscall
  *
+ * @param start_ru 
  * @return -1 error; 0 success
  */
-static int	_tracer_handle_syscall(void);
+static int	_tracer_handle_syscall(
+				const struct rusage *start_ru
+				);
 
 /**
  * @brief Handle the exit state
@@ -90,17 +95,19 @@ int	tracer_attach(
 }
 
 int	tracer_loop(void) {
+	struct rusage	start_ru;
+
 	if (_pid < 0)
 		return (-1);
 	while (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus) && g_ctx.signal == 0) {
 		if (ptrace(PTRACE_SYSCALL, _pid, NULL, _cont_sig) < 0)
 			return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
-		if (waitpid(_pid, &g_ctx.cstatus, __WALL) == -1)
+		if (wait4(_pid, &g_ctx.cstatus, __WALL, &start_ru) == -1)
 			return (perror_msg("waitpid(%d)", _pid), -1);
 		if (WIFSTOPPED(g_ctx.cstatus)) {
 			_cont_sig = WSTOPSIG(g_ctx.cstatus);
 			if ((_cont_sig & 0x7f) == SIGTRAP && (_cont_sig & 0x80) != 0) {
-				if (_tracer_handle_syscall() != 0)
+				if (_tracer_handle_syscall(&start_ru) != 0)
 					return (-1);
 				_cont_sig = 0;
 			} else {
@@ -130,20 +137,20 @@ static int	_tracer_attach_wait(
 	return (0);
 }
 
-static int	_tracer_handle_syscall(void) {
-	struct timespec	start;
-	struct timespec	end;
+static int	_tracer_handle_syscall(
+				const struct rusage *start_ru
+				) {
+
 	syscall_info_t	sci;
 	stat_entry_t	stat;
+	struct rusage	ru;
 
 	syscall_handle_in(_pid, &sci);
-	clock_gettime(CLOCK_MONOTONIC, &start);
 	if (ptrace(PTRACE_SYSCALL, _pid, NULL, 0) < 0)
 		return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
-	if (waitpid(_pid, &g_ctx.cstatus, __WALL) == -1)
+	if (wait4(_pid, &g_ctx.cstatus, __WALL, &ru) == -1)
 		return (errno == EINTR ? 0 : (perror_msg("waitpid(%d)", _pid), -1));
-	clock_gettime(CLOCK_MONOTONIC, &end);
-	stat.time = ((end.tv_sec - start.tv_sec) * 1e6) + ((end.tv_nsec - start.tv_nsec) / 1e3);
+	stat.time = (ru.ru_stime.tv_usec + ru.ru_stime.tv_sec * 1e6) - (start_ru->ru_stime.tv_usec + start_ru->ru_stime.tv_sec * 1e6);
 	syscall_handle_out(_pid, &sci);
 	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus)) {
 		stat.sci = sci;
