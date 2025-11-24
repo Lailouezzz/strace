@@ -272,12 +272,16 @@ char	*search_exec(
 
 	if (s == NULL)
 		return (NULL);
-	if (envpath == NULL || (envpath_copy = strdup(envpath)) == NULL)
+	if (envpath == NULL)
 		return (strdup(s));
+	if ((envpath_copy = strdup(envpath)) == NULL)
+		return (NULL);
 	if (strchr(s, '/') != NULL)
 		return (free(envpath_copy), strdup(s));
 	for (char *path = strtok(envpath_copy, ":"); path != NULL; path = strtok(NULL, ":")) {
 		spath = malloc((strlen(s) + strlen(path) + 2) * sizeof(char));
+		if (spath == NULL)
+			return (free(envpath_copy), NULL);
 		strcpy(spath, path);
 		strcat(spath, "/");
 		strcat(spath, s);
@@ -294,7 +298,7 @@ const char	*errno_name(int err) {
 	if (err > 0 && (unsigned int)err < ELEM_COUNT(_errno_names))
 		ret = _errno_names[err];
 	if (ret == NULL)
-		ret = "EUNK";
+		ret = "SIG?";
 	return (ret);
 }
 
