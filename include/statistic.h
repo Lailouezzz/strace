@@ -26,7 +26,6 @@ typedef struct	stat_entry_s {
 typedef struct	stat_s {
 	const syscall_def_t	*scd;
 	long				time;
-	long				time_per_call;
 	long				calls;
 	long				errors;
 }	stat_t;
