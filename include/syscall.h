@@ -1,3 +1,8 @@
+/**
+ * @file syscall.h
+ * @brief Syscall information structures.
+ */
+
 #ifndef  SYSCALL_H
 # define SYSCALL_H
 
@@ -8,7 +13,7 @@
 # include <stdint.h>
 # include <stdbool.h>
 # include <sys/types.h>
-# include"syscall_defs.h"
+# include "syscall_defs.h"
 
 // ---
 // Defines
@@ -19,41 +24,43 @@
 // ---
 
 /**
- * @typedef syscall_info_s
- * @brief Describe all information for a syscall event
- *
+ * @typedef syscall_info_t
+ * @brief Syscall event information.
  */
 typedef struct syscall_info_s {
 	/**
-	 * @brief Concerned syscall
+	 * @brief Syscall definition.
 	 */
 	const syscall_def_t	*scd;
 
 	/**
-	 * @brief Syscall args (in only)
+	 * @brief Syscall arguments (input only).
 	 */
 	uint64_t		args[MAX_SYSCALL_ARG_COUNT];
 
 	/**
-	 * @brief Return value of syscall (out only)
+	 * @brief Syscall return value (output only).
 	 */
 	uint64_t		ret;
 
 	/**
-	 * @brief Process PID
+	 * @brief Process ID.
 	 */
 	pid_t			pid;
 
 	/**
-	 * @brief Personality
+	 * @brief Process personality.
 	 */
 	int				pers;
 
+	/**
+	 * @brief Error number if syscall failed.
+	 */
 	int				errnr;
 }	syscall_info_t;
 
 // ---
-// Function declartions
+// Function declarations
 // ---
 
 #endif

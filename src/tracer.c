@@ -1,6 +1,6 @@
 /**
- * @file
- * @brief 
+ * @file tracer.c
+ * @brief Process tracing and syscall interception implementation.
  */
 
 // ---
@@ -32,12 +32,12 @@
 // ---
 
 /**
- * @brief Attached pid
+ * @brief Currently attached process ID.
  */
 static pid_t	_pid = -1;
 
 /**
- * @brief To be continued signal
+ * @brief Signal to deliver on next ptrace continue.
  */
 static int		_cont_sig = 0;
 
@@ -46,34 +46,31 @@ static int		_cont_sig = 0;
 // ---
 
 /**
- * @brief Wait pid SIGSTOP
- *
- * @param pid 
- * @return -1 error; 0 success
+ * @brief Wait for the traced process to stop with SIGSTOP.
+ * @param pid Process ID to wait for.
+ * @return 0 on success, -1 on error.
  */
 static int	_tracer_attach_wait(
 				pid_t pid
 				);
 
 /**
- * @brief Handle the current syscall
- *
- * @param start_ru 
- * @return -1 error; 0 success
+ * @brief Handle a syscall entry/exit event.
+ * @param start_ru Resource usage at syscall entry.
+ * @return 0 on success, -1 on error.
  */
 static int	_tracer_handle_syscall(
 				const struct rusage *start_ru
 				);
 
 /**
- * @brief Handle the exit state
+ * @brief Log the traced process exit status.
  */
 static void	_tracer_handle_exit(void);
 
 /**
- * @brief Handle signals
- *
- * @return -1 error; 0 success
+ * @brief Handle a signal received by the traced process.
+ * @return 0 on success, -1 on error.
  */
 static int _tracer_handle_sig(void);
 
@@ -150,7 +147,7 @@ static int	_tracer_handle_syscall(
 		return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
 	if (wait4(_pid, &g_ctx.cstatus, __WALL, &ru) == -1)
 		return (errno == EINTR ? 0 : (perror_msg("waitpid(%d)", _pid), -1));
-	stat.time = (ru.ru_stime.tv_usec + ru.ru_stime.tv_sec * 1e6) - (start_ru->ru_stime.tv_usec + start_ru->ru_stime.tv_sec * 1e6);
+	stat.time = (ru.ru_stime.tv_usec + ru.ru_stime.tv_sec * 1000000L) - (start_ru->ru_stime.tv_usec + start_ru->ru_stime.tv_sec * 1e6);
 	syscall_handle_out(_pid, &sci);
 	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus)) {
 		stat.sci = sci;

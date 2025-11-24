@@ -1,34 +1,65 @@
+/**
+ * @file syscall_defs.h
+ * @brief Syscall definitions and types.
+ */
+
 #ifndef  SYSCALL_DEFS_H
 # define SYSCALL_DEFS_H
+
 // ---
-// Define
+// Defines
 // ---
 
+/**
+ * @brief Maximum number of syscall arguments.
+ */
 # define MAX_SYSCALL_ARG_COUNT (6)
 
 // ---
 // Typedefs
 // ---
 
+/**
+ * @typedef syscall_type_t
+ * @brief Syscall argument types for logging.
+ */
 typedef enum syscall_type_e {
-	SYS_TYPE_NONE = 0,
-	SYS_TYPE_INT,
-	SYS_TYPE_SIGNED_INT,
-	SYS_TYPE_HEX,
-	SYS_TYPE_PTR,
-	SYS_TYPE_STRING,
-	SYS_TYPE_MEMSEG,
-	SYS_TYPE_OPEN_FLAGS,
-	SYS_TYPE_OPEN_MODE,
-	SYS_TYPE__COUNT
+	SYS_TYPE_NONE = 0,   /**< No type / unused argument. */
+	SYS_TYPE_INT,        /**< Unsigned integer. */
+	SYS_TYPE_SIGNED_INT, /**< Signed integer. */
+	SYS_TYPE_HEX,        /**< Hexadecimal value. */
+	SYS_TYPE_PTR,        /**< Pointer. */
+	SYS_TYPE_STRING,     /**< String pointer. */
+	SYS_TYPE_MEMSEG,     /**< Memory segment. */
+	SYS_TYPE_OPEN_FLAGS, /**< open() flags. */
+	SYS_TYPE_OPEN_MODE,  /**< open() mode. */
+	SYS_TYPE__COUNT      /**< Number of types. */
 }	syscall_type_t;
 
+/**
+ * @typedef syscall_def_t
+ * @brief Syscall definition.
+ */
 typedef struct syscall_def_s {
+	/**
+	 * @brief Syscall name.
+	 */
 	const char			*name;
+
+	/**
+	 * @brief Return type.
+	 */
 	syscall_type_t		ret_type;
+
+	/**
+	 * @brief Argument types.
+	 */
 	syscall_type_t		arg_types[MAX_SYSCALL_ARG_COUNT];
 }	syscall_def_t;
 
+/**
+ * @brief Syscall reference indices.
+ */
 enum {
 SR_SYS_accept,
 SR_SYS_accept4,
@@ -482,7 +513,16 @@ SR_SYS_writev,
 // ---
 // Global variable
 // ---
+
+/**
+ * @brief Get syscall definition index.
+ * @param ptr Pointer to syscall definition.
+ */
 # define SCD_INDEX(ptr) ((ptr) - g_syscall_defs)
+
+/**
+ * @brief Array of syscall definitions.
+ */
 extern const syscall_def_t	g_syscall_defs[447];
 
 #endif

@@ -10,6 +10,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+/**
+ * @file runner.h
+ * @brief Child process spawning and attachment.
+ */
+
 #ifndef  RUNNER_H
 # define RUNNER_H
 
@@ -23,24 +28,19 @@
 // Defines
 // ---
 
-
-
 // ---
 // Typedefs
 // ---
 
-
-
 // ---
-// Function declartions
+// Function declarations
 // ---
 
 /**
- * @brief Run and attach child to the tracer
- *
- * @param cargv child argv
- * @param cenvp child envp
- * @return The spawned child pid or -1 if error
+ * @brief Spawn a child process and attach the tracer.
+ * @param cargv Child argument vector.
+ * @param cenvp Child environment pointer.
+ * @return Spawned child PID, or -1 on error.
  */
 pid_t	runner_spawn_child(
 			char **cargv,

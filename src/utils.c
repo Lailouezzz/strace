@@ -316,7 +316,7 @@ const char	*signal_name(int signo) {
 	if (signo > 0 && (unsigned int)signo < ELEM_COUNT(_signal_names))
 		ret = _signal_names[signo];
 	if (ret == NULL)
-		ret = "EUNK";
+		ret = "SIG?";
 	return (ret);
 }
 

@@ -1,3 +1,8 @@
+/**
+ * @file tracer.h
+ * @brief Process tracing and syscall interception.
+ */
+
 #ifndef  TRACER_H
 # define TRACER_H
 
@@ -12,24 +17,19 @@
 // Defines
 // ---
 
-
-
 // ---
 // Typedefs
 // ---
 
-
-
 // ---
-// Function declartions
+// Function declarations
 // ---
 
 /**
- * @brief Attach to desired pid
- *
- * @param pid
- * @param wait_sigstop
- * @return -1 error 0 if attach success
+ * @brief Attach to a process for tracing.
+ * @param pid Target process ID.
+ * @param wait_sigstop Wait for SIGSTOP before continuing.
+ * @return 0 on success, -1 on error.
  */
 int	tracer_attach(
 		pid_t pid,
@@ -37,9 +37,8 @@ int	tracer_attach(
 		);
 
 /**
- * @brief Tracer loop on syscalls
- *
- * @return -1 error; 0 success
+ * @brief Main tracer loop intercepting syscalls.
+ * @return 0 on success, -1 on error.
  */
 int	tracer_loop(void);
 
