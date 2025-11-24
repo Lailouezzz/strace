@@ -61,7 +61,7 @@ int	syscall_handle_out(
 	TRY(pers_get_sci(pid, sci));
 	sci->scd = _cur_scd;
 	TRY(logger_log_syscall_out(sci, _cur_write));
-	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus) && sci->errnr <= ERRNO_MAX) {
+	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus)) {
 		stat.sci = *sci;
 		stat.time = time;
 		TRY(stat_add(&stat));
