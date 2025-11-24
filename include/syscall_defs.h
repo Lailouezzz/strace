@@ -7,6 +7,12 @@
 # define SYSCALL_DEFS_H
 
 // ---
+// Includes
+// ---
+
+# include "utils.h"
+
+// ---
 // Defines
 // ---
 
@@ -14,6 +20,23 @@
  * @brief Maximum number of syscall arguments.
  */
 # define MAX_SYSCALL_ARG_COUNT (6)
+
+/**
+ * @brief Decode sys_type.
+ */
+# define GET_SYS_TYPE(sys_type) (ABS(sys_type) & 0xff)
+
+/**
+ * @brief Decode SYS_TYPE arg (like MEMSEG)
+ */
+# define GET_SYS_TYPE_ARG(sys_type) (ABS(sys_type) >> 8)
+
+/**
+ * @brief Encode SYS_TYPE with arg (like MEMSEG)
+ */
+# define SYS_TYPE_ARG(sys_type, sys_arg) ((sys_type) | (sys_arg << 8))
+
+# define SYS_TYPE_DEFAULT (SYS_TYPE_INT) /**< Alias for SYS_TYPE_INT. */
 
 // ---
 // Typedefs

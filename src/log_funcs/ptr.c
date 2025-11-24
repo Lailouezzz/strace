@@ -9,6 +9,7 @@
 
 LOG_FUNC_impl(PTR) {
 	UNUSED(sci);
+	UNUSED(sys_type);
 	int	ret = 0;
 	int	tmp;
 

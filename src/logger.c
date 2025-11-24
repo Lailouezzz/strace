@@ -147,19 +147,18 @@ int	logger_log_args(
 	begin = 0;
 	end = MAX_SYSCALL_ARG_COUNT - 1;
 	for (int k = 0; k < MAX_SYSCALL_ARG_COUNT; ++k) {
-		if ((int)sci->scd->arg_types[k] > 0) {
-			*(syscall_in ? &end : &begin) = k;
+		*(syscall_in ? &end : &begin) = k;
+		if ((int)sci->scd->arg_types[k] > 0)
 			break ;
-		}
 	}
 	ret = 0;
 	for (int k = begin; k < end && sci->scd->arg_types[k] != SYS_TYPE_NONE; ++k) {
-		log_func = g_log_funcs[ABS((int)sci->scd->arg_types[k])];
+		log_func = g_log_funcs[GET_SYS_TYPE((int)sci->scd->arg_types[k])];
 		if (log_func != NULL) {
-			TRY_SILENT(tmp = log_func(args[k], sci));
+			TRY_SILENT(tmp = log_func(args[k], sci, sci->scd->arg_types[k]));
 		}
 		else {
-			TRY_SILENT(tmp = LOG_FUNC_DEFAULT(args[k], sci));
+			TRY_SILENT(tmp = LOG_FUNC_DEFAULT(args[k], sci, SYS_TYPE_DEFAULT));
 		}
 		ret += tmp;
 		if (k != MAX_SYSCALL_ARG_COUNT - 1 && sci->scd->arg_types[k + 1] != SYS_TYPE_NONE) {
@@ -175,11 +174,11 @@ int	logger_log_return(
 		) {
 	log_func_t	log_func;
 
-	log_func = g_log_funcs[ABS((int)sci->scd->ret_type)];
+	log_func = g_log_funcs[GET_SYS_TYPE((int)sci->scd->ret_type)];
 	if (log_func != NULL)
-		return (log_func(sci->ret, sci));
+		return (log_func(sci->ret, sci, sci->scd->ret_type));
 	else
-		return (LOG_FUNC_DEFAULT(sci->ret, sci));
+		return (LOG_FUNC_DEFAULT(sci->ret, sci, sci->scd->ret_type));
 }
 
 int	logger_log_signal(

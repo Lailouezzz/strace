@@ -13,4 +13,6 @@
 const log_func_t	g_log_funcs[SYS_TYPE__COUNT] = {
 LOG_FUNC_entry(INT)
 LOG_FUNC_entry(PTR)
+LOG_FUNC_entry(STRING)
+LOG_FUNC_entry(MEMSEG)
 };

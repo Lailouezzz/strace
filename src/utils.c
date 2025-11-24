@@ -14,6 +14,8 @@
 // Includes
 // ---
 
+#define _GNU_SOURCE
+#include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -21,6 +23,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <sys/uio.h>
 #include <sys/signal.h>
 #include "strace.h"
 
@@ -31,6 +34,12 @@
 // ---
 
 #define NAME_IDX_ENTRY(name, idx) [idx] = #name,
+
+// ---
+// Typedefs
+// ---
+
+TYPEDEF_LIST(char, bytes);
 
 // ---
 // Local variable
@@ -229,6 +238,8 @@ static int	_search_exec_exist(
 				const char *s
 				);
 
+static int	_get_page_size();
+
 // ---
 // Extern function definitions
 // ---
@@ -324,9 +335,90 @@ const char	*signal_name(int signo) {
 	return (ret);
 }
 
+char	*read_process(
+			pid_t pid,
+			uint64_t addr,
+			size_t size
+			) {
+	struct iovec	local;
+	struct iovec	remote;
+	ssize_t			nread;
+	size_t			to_read;
+	bytes_t			data = list_new();
+
+	for (size_t k = 0; k < size;) {
+		to_read = MIN(size - k, _get_page_size() - (addr % _get_page_size()));
+		if (!list_reserve(&data, to_read + data.len)) {
+			list_free(&data);
+			return (NULL);
+		}
+		local.iov_base = data.data + data.len;
+		local.iov_len = to_read;
+		remote.iov_base = (void*)addr + data.len;
+		remote.iov_len = to_read;
+		nread = process_vm_readv(pid, &local, 1, &remote, 1, 0);
+		if (nread < 0) {
+			if (errno == EFAULT || errno == EIO) {
+				if (data.len == 0) {
+					list_free(&data);
+					return (NULL);
+				}
+				break ;
+			}
+			list_free(&data);
+			return (NULL);
+		}
+		if (nread == 0)
+			break ;
+		data.len += nread;
+		k += nread;
+	}
+	if (data.len != size)
+		list_free(&data);
+	return (data.data);
+}
+
+int	fprint_escaped(
+		FILE *fp,
+		const char *data,
+		size_t len
+		) {
+	char	c;
+	int		ret;
+
+	ret = 0;
+	for (size_t i = 0; i < len; i++) {
+		c = data[i];
+		if (c == '\n')
+			ret += fprintf(fp, "\\n");
+		else if (c == '\t')
+			ret += fprintf(fp, "\\t");
+		else if (c == '\r')
+			ret += fprintf(fp, "\\r");
+		else if (c == '\\')
+			ret += fprintf(fp, "\\\\");
+		else if (c == '"')
+			ret += fprintf(fp, "\\\"");
+		else if (c == '\0')
+			ret += fprintf(fp, "\\0");
+		else if (c >= 0x20 && c <= 0x7E)
+			ret += fprintf(fp, "%c", c);
+		else
+			ret += fprintf(fp, "\\x%02x", c);
+	}
+	return (ret);
+}
+
 // ---
 // Static function definitions
 // ---
+
+static int	_get_page_size() {
+	static size_t page_size = 0;
+	if (page_size == 0)
+		page_size = sysconf(_SC_PAGESIZE);
+	return page_size;
+}
 
 static int	_search_exec_exist(
 				const char *s

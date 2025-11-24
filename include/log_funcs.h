@@ -27,18 +27,19 @@
  * @brief Log function declaration macro.
  * @param type Syscall type suffix.
  */
-# define LOG_FUNC_def(type) int log_func_ ## type(uint64_t value, const syscall_info_t *sci);
+# define LOG_FUNC_def(type) int log_func_ ## type(uint64_t value, const syscall_info_t *sci, syscall_type_t sys_type);
 
 /**
  * @brief Log function implementation macro.
  * @param type Syscall type suffix.
  */
-# define LOG_FUNC_impl(type) int log_func_ ## type(uint64_t value, const syscall_info_t *sci)
+# define LOG_FUNC_impl(type) int log_func_ ## type(uint64_t value, const syscall_info_t *sci, syscall_type_t sys_type)
 
 /**
  * @brief Print to stderr.
  */
-# define LOG_PRINT(...) fprintf(stderr, __VA_ARGS__)
+# define LOG_FILE stderr
+# define LOG_PRINT(...) fprintf(LOG_FILE, __VA_ARGS__)
 
 // ---
 // Function declarations

@@ -22,8 +22,10 @@
 // Includes
 // ---
 
-# include <stddef.h>
 # include <stdlib.h>
+# include <stdio.h>
+# include <stddef.h>
+# include <stdint.h>
 # include <string.h>
 # include <stdbool.h>
 
@@ -126,6 +128,11 @@
 # define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 /**
+ * @brief Return the maximum of two values.
+ */
+# define MIN(a, b) ((a) < (b) ? (a) : (b))
+
+/**
  * @brief Return the absolute value.
  */
 # define ABS(a) (((a) < 0) ? (-(a)) : (a))
@@ -213,5 +220,17 @@ char	*search_exec(
 			char *s,
 			char *path
 			);
+
+char	*read_process(
+			pid_t pid,
+			uint64_t addr,
+			size_t size
+			);
+
+int	fprint_escaped(
+		FILE *fp,
+		const char *data,
+		size_t len
+		);
 
 #endif

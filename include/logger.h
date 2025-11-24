@@ -26,7 +26,7 @@
 /**
  * @brief Default log function for unknown types.
  */
-# define LOG_FUNC_DEFAULT g_log_funcs[SYS_TYPE_INT]
+# define LOG_FUNC_DEFAULT g_log_funcs[SYS_TYPE_DEFAULT]
 
 // ---
 // Typedefs
@@ -39,7 +39,7 @@
  * @param sci The syscall information context.
  * @return Number of characters written.
  */
-typedef int	(*log_func_t)(uint64_t value, const syscall_info_t *sci);
+typedef int	(*log_func_t)(uint64_t value, const syscall_info_t *sci, syscall_type_t sys_type);
 
 // ---
 // Global variable
