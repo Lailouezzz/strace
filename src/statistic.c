@@ -45,16 +45,36 @@ static bool		_should_save = false;
 // Static function declarations
 // ---
 
+/**
+ * @brief Compare two stat entries by time for sorting.
+ * @param a First stat entry pointer.
+ * @param b Second stat entry pointer.
+ * @return Negative if a > b, positive if a < b, 0 if equal.
+ */
 static int	_stat_cmp(
 				const void *a,
 				const void *b
 				);
 
+/**
+ * @brief Print a single stat entry.
+ * @param stat The stat entry to print.
+ * @param total The total stat for percentage calculation.
+ * @return Number of characters printed, or -1 on error.
+ */
 static int _stat_print_stat(
 				const stat_t *stat,
 				const stat_t *total
 				);
 
+/**
+ * @brief Process stats array into sorted list and compute totals.
+ * @param stats The stats array to process.
+ * @param stats_len Length of the stats array.
+ * @param ordered_stats Output list for sorted stats.
+ * @param total Output for total statistics.
+ * @return 0 on success, -1 on error.
+ */
 static int	_stat_process(
 				stat_t *stats,
 				size_t stats_len,

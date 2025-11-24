@@ -67,9 +67,12 @@ static void	_strace_init_parse_args(
 				char **argv
 				);
 
+/**
+ * @brief Signal handler for SIGINT, SIGQUIT and SIGTERM.
+ * @param sig The signal number.
+ */
 static void	_strace_sig_handler(
-				int
-				sig
+				int sig
 				);
 
 /**

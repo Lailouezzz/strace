@@ -9,11 +9,10 @@
 #include "log_funcs.h"
 
 /**
- * @brief 
- *
- * @param sci 
- * @param sys_type 
- * @return 
+ * @brief Get the size of the memory segment to log.
+ * @param sci The syscall information context.
+ * @param sys_type The syscall type with encoded size argument.
+ * @return The size of the memory segment in bytes.
  */
 static uint64_t	_get_size(
 					const syscall_info_t *sci,

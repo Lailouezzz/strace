@@ -19,7 +19,10 @@
 // ---
 
 /**
- * @brief Child entry point
+ * @brief Child entry point.
+ * @param exec_path The executable path to run.
+ * @param cargv The argument vector.
+ * @param cenvp The environment vector.
  */
 static noreturn void	_runner_child_entry(
 							const char *exec_path,

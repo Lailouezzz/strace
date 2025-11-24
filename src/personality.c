@@ -32,16 +32,34 @@ static const int	_pers_sce_i386[] = {
 // Static function declarations
 // ---
 
+/**
+ * @brief Get the return value from user registers.
+ * @param user_regs The user registers structure.
+ * @param pers The architecture personality.
+ * @return The syscall return value.
+ */
 static uint64_t	_pers_get_return(
 					const user_regs_t *user_regs,
 					arch_pers_t pers
 					);
 
+/**
+ * @brief Get the syscall number from user registers.
+ * @param user_regs The user registers structure.
+ * @param pers The architecture personality.
+ * @return The syscall number.
+ */
 static uint64_t	_pers_get_sysnr(
 					const user_regs_t *user_regs,
 					arch_pers_t pers
 					);
 
+/**
+ * @brief Extract syscall arguments from user registers.
+ * @param user_regs The user registers structure.
+ * @param args Output array for the arguments.
+ * @param pers The architecture personality.
+ */
 static void		_pers_get_args(
 					const user_regs_t *user_regs,
 					uint64_t *args,

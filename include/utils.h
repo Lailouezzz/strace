@@ -128,7 +128,7 @@
 # define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 /**
- * @brief Return the maximum of two values.
+ * @brief Return the minimum of two values.
  */
 # define MIN(a, b) ((a) < (b) ? (a) : (b))
 
@@ -221,12 +221,26 @@ char	*search_exec(
 			char *path
 			);
 
+/**
+ * @brief Read memory from a traced process.
+ * @param pid The process ID to read from.
+ * @param addr The memory address in the target process.
+ * @param size The number of bytes to read.
+ * @return Allocated buffer with the data, or NULL on error. Must be freed.
+ */
 char	*read_process(
 			pid_t pid,
 			uint64_t addr,
 			size_t size
 			);
 
+/**
+ * @brief Print escaped string to file.
+ * @param fp The file pointer to write to.
+ * @param data The data to print.
+ * @param len The length of the data.
+ * @return The number of characters printed.
+ */
 int	fprint_escaped(
 		FILE *fp,
 		const char *data,

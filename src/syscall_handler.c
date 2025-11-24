@@ -27,6 +27,11 @@ static int	_cur_write = 0;
 // Static function declarations
 // ---
 
+/**
+ * @brief Handle architecture personality change.
+ * @param new_pers The new personality.
+ * @param pid The process ID.
+ */
 static void	_syscall_handle_pers_change(
 				int new_pers,
 				pid_t pid

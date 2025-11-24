@@ -238,6 +238,10 @@ static int	_search_exec_exist(
 				const char *s
 				);
 
+/**
+ * @brief Get the system page size (cached).
+ * @return The system page size in bytes.
+ */
 static int	_get_page_size();
 
 // ---
