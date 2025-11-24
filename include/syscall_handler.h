@@ -11,6 +11,7 @@
 // ---
 
 #include <sys/types.h>
+#include "statistic.h"
 #include "syscall.h"
 
 // ---
@@ -40,11 +41,13 @@ int	syscall_handle_in(
  * @brief Handle syscall exit.
  * @param pid Process ID.
  * @param sci Syscall information to update with return value.
+ * @param time Syscall execution time in microseconds.
  * @return 0 on success, -1 on error.
  */
 int	syscall_handle_out(
 		pid_t pid,
-		syscall_info_t *sci
+		syscall_info_t *sci,
+		long time
 		);
 
 #endif

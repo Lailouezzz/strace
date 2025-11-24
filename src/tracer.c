@@ -139,7 +139,6 @@ static int	_tracer_handle_syscall(
 				) {
 
 	syscall_info_t	sci;
-	stat_entry_t	stat;
 	struct rusage	ru;
 
 	syscall_handle_in(_pid, &sci);
@@ -147,16 +146,12 @@ static int	_tracer_handle_syscall(
 		return (perror_msg("ptrace(PTRACE_SYSCALL, %d)", _pid), -1);
 	if (wait4(_pid, &g_ctx.cstatus, __WALL, &ru) == -1)
 		return (errno == EINTR ? 0 : (perror_msg("waitpid(%d)", _pid), -1));
-	stat.time = (ru.ru_stime.tv_usec + ru.ru_stime.tv_sec * 1000000L) - (start_ru->ru_stime.tv_usec + start_ru->ru_stime.tv_sec * 1000000L);
-	syscall_handle_out(_pid, &sci);
-	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus)) {
-		stat.sci = sci;
-		TRY(stat_add(&stat));
-	}
+	syscall_handle_out(_pid, &sci, (ru.ru_stime.tv_usec + ru.ru_stime.tv_sec * 1000000L) - (start_ru->ru_stime.tv_usec + start_ru->ru_stime.tv_sec * 1000000L));
 	return (0);
 }
 
 static void	_tracer_handle_exit(void) {
+	logger_should_log_event(true);
 	if (WIFEXITED(g_ctx.cstatus))
 		logger_log_event("+++ exited with %d +++\n", WEXITSTATUS(g_ctx.cstatus));
 	else if (WIFSIGNALED(g_ctx.cstatus)) {

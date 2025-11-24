@@ -142,6 +142,8 @@
 
 /* Extra errno values from kernel */
 
+# define ERRNO_MAX             511
+
 /** @brief Restart syscall. */
 # define ERESTARTSYS           512
 

@@ -7,6 +7,7 @@
 #include <string.h>
 #include "logger.h"
 #include "personality.h"
+#include "statistic.h"
 #include "strace.h"
 #include "syscall.h"
 #include "syscall_defs.h"
@@ -43,22 +44,30 @@ int	syscall_handle_in(
 	_cur_scd = sci->scd;
 	_syscall_handle_pers_change(sci->pers, pid);
 	if (_cur_scd == &g_syscall_defs[SR_SYS_execve])
-		logger_should_log_event(true);
+		(logger_should_log_event(true), stat_should_save(true));
 	TRY(_cur_write = logger_log_syscall_in(sci));
 	return (0);
 }
 
 int	syscall_handle_out(
 		pid_t pid,
-		syscall_info_t *sci
+		syscall_info_t *sci,
+		long time
 		) {
+	stat_entry_t	stat;
+
 	if (WIFEXITED(g_ctx.cstatus) || WIFSIGNALED(g_ctx.cstatus))
 		return (logger_log_syscall_out(NULL, _cur_write), 0);
 	TRY(pers_get_sci(pid, sci));
 	sci->scd = _cur_scd;
 	TRY(logger_log_syscall_out(sci, _cur_write));
+	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus) && sci->errnr <= ERRNO_MAX) {
+		stat.sci = *sci;
+		stat.time = time;
+		TRY(stat_add(&stat));
+	}
 	if (sci->errnr != 0 && _cur_scd == &g_syscall_defs[SR_SYS_execve])
-		logger_should_log_event(false);
+		(logger_should_log_event(false), stat_should_save(false));
 	_syscall_handle_pers_change(sci->pers, pid);
 	return (0);
 }

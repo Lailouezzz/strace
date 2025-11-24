@@ -77,6 +77,14 @@ int		stat_init(
 			);
 
 /**
+ * @brief Enable or disable statistics collection.
+ * @param should_save true to enable, false to disable.
+ */
+void	stat_should_save(
+			bool should_save
+			);
+
+/**
  * @brief Cleanup statistics resources.
  */
 void	stat_cleanup(void);

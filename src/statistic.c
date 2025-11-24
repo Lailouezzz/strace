@@ -76,6 +76,12 @@ int	stat_init(
 	return (0);
 }
 
+void	stat_should_save(
+			bool should_save
+			) {
+	_should_save = should_save;
+}
+
 void	stat_cleanup(void) {
 }
 
@@ -92,7 +98,6 @@ int		stat_add(
 }
 
 int	stat_print_summary(void) {
-	BREAK_SHOULD_SAVE;
 	int			tmp;
 	int			ret = 0;
 	stat_t		(*pers_stats)[];
