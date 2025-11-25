@@ -14,12 +14,12 @@ LOG_FUNC_impl(STRING) {
 	char	*str;
 
 	str = read_process_str(sci->pid, value);
+	if (str == NULL)
+		return (LOG_PRINT("NULL"));
 	TRY_SILENT(tmp = LOG_PRINT("\""));
 	ret += tmp;
-	if (str != NULL) {
-		TRY_SILENT(tmp = fprint_escaped(LOG_FILE, str, strlen(str)));
-		ret += tmp;
-	}
+	TRY_SILENT(tmp = fprint_escaped(LOG_FILE, str, strlen(str)));
+	ret += tmp;
 	TRY_SILENT(tmp = LOG_PRINT("\""));
 	ret += tmp;
 	free(str);

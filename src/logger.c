@@ -147,7 +147,7 @@ int	logger_log_args(
 	if (g_log_custom[SCD_INDEX(sci->scd)][syscall_in ? 0 : 1] != NULL)
 		return (g_log_custom[SCD_INDEX(sci->scd)][syscall_in ? 0 : 1](sci));
 	begin = 0;
-	end = MAX_SYSCALL_ARG_COUNT - 1;
+	end = MAX_SYSCALL_ARG_COUNT;
 	for (int k = 0; k < MAX_SYSCALL_ARG_COUNT; ++k) {
 		*(syscall_in ? &end : &begin) = k;
 		if ((int)sci->scd->arg_types[k] > 0)

@@ -18,15 +18,6 @@
 // ---
 
 /**
- * @typedef bitmap_mapping_t
- * @brief Bitmap flag to name mapping.
- */
-typedef struct {
-	uint64_t bit;       /**< Flag bit value. */
-	const char *name;   /**< Flag name string. */
-} bitmap_mapping_t;
-
-/**
  * @brief Log function table entry macro.
  * @param type Syscall type suffix.
  */
@@ -50,12 +41,35 @@ typedef struct {
 # define LOG_FILE stderr
 # define LOG_PRINT(...) fprintf(LOG_FILE, __VA_ARGS__)
 
+/**
+ * @brief Create a bitmap mapping entry from a flag constant.
+ * @param flag The flag constant name (automatically stringified).
+ */
+# define BITMAP_MAPPING_ENTRY(flag) {flag, #flag}
+
+// ---
+// Typedefs.
+// ---
+
+/**
+ * @typedef bitmap_mapping_t
+ * @brief Bitmap flag to name mapping.
+ */
+typedef struct {
+	uint64_t bit;       /**< Flag bit value. */
+	const char *name;   /**< Flag name string. */
+} bitmap_mapping_t;
+
 // ---
 // Function declarations
 // ---
 
 LOG_FUNC_def(INT)
 LOG_FUNC_def(PTR)
+LOG_FUNC_def(SIZE)
+LOG_FUNC_def(SSIZE)
+LOG_FUNC_def(MMAP_PROT)
+LOG_FUNC_def(MMAP_FLAGS)
 LOG_FUNC_def(FD)
 LOG_FUNC_def(HEX)
 LOG_FUNC_def(STRING)

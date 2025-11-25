@@ -6,7 +6,7 @@
 /*   By: ale-boud <ale-boud@student.42lehavre.fr>   +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/11 12:07:54 by ale-boud          #+#    #+#             */
-/*   Updated: 2025/09/11 16:20:39 by ale-boud         ###   ########.fr       */
+/*   Updated: 2025/11/25 16:34:16 by ale-boud         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -413,10 +413,12 @@ int	fprint_escaped(
 			ret += fprintf(fp, "\\\"");
 		else if (c == '\0')
 			ret += fprintf(fp, "\\0");
+		else if (c == '\f')
+			ret += fprintf(fp, "\\f");
 		else if (isprint(c))
 			ret += fprintf(fp, "%c", c);
 		else
-			ret += fprintf(fp, "\\x%02x", c);
+			ret += fprintf(fp, "\\%hho", c);
 	}
 	return (ret);
 }

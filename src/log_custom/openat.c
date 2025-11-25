@@ -23,7 +23,7 @@ LOG_CUSTOM_impl(openat, in) {
 	ret += tmp;
 	TRY_SILENT(tmp = log_func_OPEN_FLAGS(sci->args[2], sci, SYS_TYPE_OPEN_FLAGS));
 	ret += tmp;
-	if ((sci->args[2] & (O_CREAT|O_TMPFILE)) == 0)
+	if ((sci->args[2] & O_CREAT) != O_CREAT && (sci->args[2] & O_TMPFILE) != O_TMPFILE)
 		return (ret);
 	TRY_SILENT(tmp = LOG_PRINT(", "));
 	ret += tmp;

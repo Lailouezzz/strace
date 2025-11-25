@@ -49,6 +49,10 @@
 typedef enum syscall_type_e {
 	SYS_TYPE_NONE = 0,   /**< No type / unused argument. */
 	SYS_TYPE_INT,        /**< Signed integer. */
+	SYS_TYPE_SIZE,       /**< size_t/off_t. */
+	SYS_TYPE_SSIZE,      /**< ssize_t. */
+	SYS_TYPE_MMAP_PROT,  /**< mmap() prot. */
+	SYS_TYPE_MMAP_FLAGS, /**< mmap() flags. */
 	SYS_TYPE_FD,         /**< File descriptor. */
 	SYS_TYPE_HEX,        /**< Hexadecimal value. */
 	SYS_TYPE_PTR,        /**< Pointer. */

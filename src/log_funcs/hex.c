@@ -7,12 +7,9 @@
 
 #include "log_funcs.h"
 
-LOG_FUNC_impl(PTR) {
+LOG_FUNC_impl(HEX) {
 	UNUSED(sci);
 	UNUSED(sys_type);
 
-	if ((void *)value != NULL)
-		return (LOG_PRINT("0x%lx", value));
-	else
-		return (LOG_PRINT("NULL"));
+	return (LOG_PRINT("%#lx", value));
 }

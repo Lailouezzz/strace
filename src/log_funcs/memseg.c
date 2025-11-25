@@ -3,10 +3,14 @@
 // ---
 
 #include <sys/uio.h>
-#include "personality.h"
 #include "utils.h"
 
 #include "log_funcs.h"
+
+/**
+ * @brief Maximum length of memory segment to display.
+ */
+#define MAX_MEMSEG_LEN 32
 
 /**
  * @brief Get the size of the memory segment to log.
@@ -26,15 +30,19 @@ LOG_FUNC_impl(MEMSEG) {
 	char		*data;
 
 	size = _get_size(sci, sys_type);
-	data = read_process(sci->pid, value, size);
+	data = read_process(sci->pid, value, MIN(size, MAX_MEMSEG_LEN));
+	if (data == NULL)
+		return (LOG_PRINT("NULL"));
 	TRY_SILENT(tmp = LOG_PRINT("\""));
 	ret += tmp;
-	if (data != NULL) {
-		TRY_SILENT(tmp = fprint_escaped(LOG_FILE, data, size));
+	TRY_SILENT(tmp = fprint_escaped(LOG_FILE, data, MIN(size, MAX_MEMSEG_LEN)));
+	ret += tmp;
+	TRY_SILENT(tmp = LOG_PRINT("\""));
+	ret += tmp;
+	if (size > MAX_MEMSEG_LEN) {
+		TRY_SILENT(tmp = LOG_PRINT("..."));
 		ret += tmp;
 	}
-	TRY_SILENT(tmp = LOG_PRINT("\""));
-	ret += tmp;
 	free(data);
 	return (ret);
 }
