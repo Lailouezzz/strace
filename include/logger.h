@@ -28,6 +28,12 @@
  */
 # define LOG_FUNC_DEFAULT g_log_funcs[SYS_TYPE_DEFAULT]
 
+/**
+ * @brief Print to stderr.
+ */
+# define LOG_FILE stderr
+# define LOG_PRINT(...) fprintf(LOG_FILE, __VA_ARGS__)
+
 // ---
 // Typedefs
 // ---
@@ -41,6 +47,14 @@
  */
 typedef int	(*log_func_t)(uint64_t value, const syscall_info_t *sci, syscall_type_t sys_type);
 
+/**
+ * @typedef log_custom_t
+ * @brief Function pointer type for custom syscall logging.
+ * @param sci The syscall information context.
+ * @return Number of characters written.
+ */
+typedef int	(*log_custom_t)(const syscall_info_t *sci);
+
 // ---
 // Global variable
 // ---
@@ -49,6 +63,12 @@ typedef int	(*log_func_t)(uint64_t value, const syscall_info_t *sci, syscall_typ
  * @brief Array of log functions indexed by syscall argument type.
  */
 extern const log_func_t	g_log_funcs[SYS_TYPE__COUNT];
+
+/**
+ * @brief Array of custom log functions indexed by syscall definition.
+ *        First element is for entry (in), second for exit (out).
+ */
+extern const log_custom_t	g_log_custom[ELEM_COUNT(g_syscall_defs)][2];
 
 // ---
 // Function declarations

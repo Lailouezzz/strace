@@ -18,6 +18,15 @@
 // ---
 
 /**
+ * @typedef bitmap_mapping_t
+ * @brief Bitmap flag to name mapping.
+ */
+typedef struct {
+	uint64_t bit;       /**< Flag bit value. */
+	const char *name;   /**< Flag name string. */
+} bitmap_mapping_t;
+
+/**
  * @brief Log function table entry macro.
  * @param type Syscall type suffix.
  */
@@ -47,7 +56,7 @@
 
 LOG_FUNC_def(INT)
 LOG_FUNC_def(PTR)
-LOG_FUNC_def(SIGNED_INT)
+LOG_FUNC_def(FD)
 LOG_FUNC_def(HEX)
 LOG_FUNC_def(STRING)
 LOG_FUNC_def(MEMSEG)

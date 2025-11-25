@@ -144,6 +144,8 @@ int	logger_log_args(
 
 	if (sci == NULL)
 		return (0);
+	if (g_log_custom[SCD_INDEX(sci->scd)][syscall_in ? 0 : 1] != NULL)
+		return (g_log_custom[SCD_INDEX(sci->scd)][syscall_in ? 0 : 1](sci));
 	begin = 0;
 	end = MAX_SYSCALL_ARG_COUNT - 1;
 	for (int k = 0; k < MAX_SYSCALL_ARG_COUNT; ++k) {

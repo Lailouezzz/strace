@@ -8,7 +8,6 @@
 #include "log_funcs.h"
 
 LOG_FUNC_impl(STRING) {
-	UNUSED(sci);
 	UNUSED(sys_type);
 	int		ret = 0;
 	int		tmp;

@@ -48,8 +48,8 @@
  */
 typedef enum syscall_type_e {
 	SYS_TYPE_NONE = 0,   /**< No type / unused argument. */
-	SYS_TYPE_INT,        /**< Unsigned integer. */
-	SYS_TYPE_SIGNED_INT, /**< Signed integer. */
+	SYS_TYPE_INT,        /**< Signed integer. */
+	SYS_TYPE_FD,         /**< File descriptor. */
 	SYS_TYPE_HEX,        /**< Hexadecimal value. */
 	SYS_TYPE_PTR,        /**< Pointer. */
 	SYS_TYPE_STRING,     /**< String pointer. */

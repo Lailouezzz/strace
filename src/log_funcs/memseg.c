@@ -20,8 +20,6 @@ static uint64_t	_get_size(
 					);
 
 LOG_FUNC_impl(MEMSEG) {
-	UNUSED(sci);
-	UNUSED(sys_type);
 	int			ret = 0;
 	int			tmp;
 	uint64_t	size;
