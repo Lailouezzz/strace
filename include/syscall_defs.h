@@ -84,6 +84,7 @@ typedef struct syscall_def_s {
  * @brief Syscall reference indices.
  */
 enum {
+SR_SYS_unknown_syscall,
 SR_SYS_accept,
 SR_SYS_accept4,
 SR_SYS_access,
@@ -546,6 +547,6 @@ SR_SYS_writev,
 /**
  * @brief Array of syscall definitions.
  */
-extern const syscall_def_t	g_syscall_defs[447];
+extern const syscall_def_t	g_syscall_defs[448];
 
 #endif

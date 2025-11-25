@@ -76,7 +76,8 @@ int	pers_get_sci(
 		) {
 	struct iovec	iov;
 	user_regs_t		user_regs;
-	int				sysnr;
+	uint64_t		sysnr;
+	int				scd_idx;
 	int64_t			ret;
 
 	iov.iov_base = &user_regs;
@@ -88,10 +89,18 @@ int	pers_get_sci(
 	sci->ret = _pers_get_return(&user_regs, sci->pers);
 	_pers_get_args(&user_regs, sci->args, sci->pers);
 	sysnr = _pers_get_sysnr(&user_regs, sci->pers);
-	sci->scd = &g_syscall_defs[
-					(sci->pers == PERS_i386 ? _pers_sce_i386 : _pers_sce_x86_64)
-						[sysnr]
-				];
+	if (sci->pers == PERS_i386) {
+		if (sysnr >= ELEM_COUNT(_pers_sce_i386))
+			scd_idx = 0;
+		else
+			scd_idx = _pers_sce_i386[sysnr];
+	} else {
+		if (sysnr >= ELEM_COUNT(_pers_sce_x86_64))
+			scd_idx = 0;
+		else
+			scd_idx = _pers_sce_x86_64[sysnr];
+	}
+	sci->scd = &g_syscall_defs[scd_idx];
 	ret = (sci->pers == PERS_i386 ? (int32_t)sci->ret : (int64_t)sci->ret);
 	if (ret < 0 && ret > -0x1000)
 		sci->errnr = -ret;

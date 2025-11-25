@@ -15,6 +15,7 @@
 // ---
 
 const syscall_def_t g_syscall_defs[] = {
+SR_SYS_entry(unknown_syscall, SYS_TYPE_INT, )
 SR_SYS_entry(accept, SYS_TYPE_INT, )
 SR_SYS_entry(accept4, SYS_TYPE_INT, )
 SR_SYS_entry(access, SYS_TYPE_INT, )
