@@ -30,13 +30,13 @@ LOG_FUNC_impl(MEMSEG) {
 	size = _get_size(sci, sys_type);
 	data = read_process(sci->pid, value, size);
 	TRY_SILENT(tmp = LOG_PRINT("\""));
-	ret = tmp;
+	ret += tmp;
 	if (data != NULL) {
 		TRY_SILENT(tmp = fprint_escaped(LOG_FILE, data, size));
-		ret = tmp;
+		ret += tmp;
 	}
 	TRY_SILENT(tmp = LOG_PRINT("\""));
-	ret = tmp;
+	ret += tmp;
 	free(data);
 	return (ret);
 }

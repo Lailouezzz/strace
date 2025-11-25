@@ -10,10 +10,19 @@
 LOG_FUNC_impl(STRING) {
 	UNUSED(sci);
 	UNUSED(sys_type);
-	int	ret = 0;
-	int	tmp;
+	int		ret = 0;
+	int		tmp;
+	char	*str;
 
-	TRY_SILENT(tmp = LOG_PRINT("0x%0*lx", SCI_REG_SIZE(*sci) * 2, value));
-	ret = tmp;
+	str = read_process_str(sci->pid, value);
+	TRY_SILENT(tmp = LOG_PRINT("\""));
+	ret += tmp;
+	if (str != NULL) {
+		TRY_SILENT(tmp = fprint_escaped(LOG_FILE, str, strlen(str)));
+		ret += tmp;
+	}
+	TRY_SILENT(tmp = LOG_PRINT("\""));
+	ret += tmp;
+	free(str);
 	return (ret);
 }

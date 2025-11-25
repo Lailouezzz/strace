@@ -120,9 +120,8 @@ void	strace_run(void);
 void	strace_cleanup(void);
 
 /**
- * @brief Terminate the process with status code
- *
- * @param status_code 
+ * @brief Terminate the process with status code.
+ * @param status_code The exit status code.
  */
 noreturn void	strace_terminate(
 					int status_code

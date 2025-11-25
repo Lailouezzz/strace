@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <errno.h>
+#include <ctype.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -34,12 +35,6 @@
 // ---
 
 #define NAME_IDX_ENTRY(name, idx) [idx] = #name,
-
-// ---
-// Typedefs
-// ---
-
-TYPEDEF_LIST(char, bytes);
 
 // ---
 // Local variable
@@ -339,6 +334,30 @@ const char	*signal_name(int signo) {
 	return (ret);
 }
 
+char	*read_process_str(
+			pid_t pid,
+			uint64_t addr
+			) {
+	bytes_t			data = list_new();
+	char			c;
+	struct iovec	local;
+	struct iovec	remote;
+
+	if ((void*)addr == NULL)
+		return (NULL);
+	do {
+		local.iov_base = &c;
+		local.iov_len = 1;
+		remote.iov_base = (char *)addr + data.len;
+		remote.iov_len = 1;
+		if (process_vm_readv(pid, &local, 1, &remote, 1, 0) != 1) {
+			list_free(&data);
+			return (NULL);
+		}
+	} while (list_push(&data, c) && c != '\0');
+	return (data.data);
+}
+
 char	*read_process(
 			pid_t pid,
 			uint64_t addr,
@@ -361,24 +380,13 @@ char	*read_process(
 		remote.iov_base = (void*)addr + data.len;
 		remote.iov_len = to_read;
 		nread = process_vm_readv(pid, &local, 1, &remote, 1, 0);
-		if (nread < 0) {
-			if (errno == EFAULT || errno == EIO) {
-				if (data.len == 0) {
-					list_free(&data);
-					return (NULL);
-				}
-				break ;
-			}
+		if (nread <= 0) {
 			list_free(&data);
 			return (NULL);
 		}
-		if (nread == 0)
-			break ;
 		data.len += nread;
 		k += nread;
 	}
-	if (data.len != size)
-		list_free(&data);
 	return (data.data);
 }
 
@@ -405,7 +413,7 @@ int	fprint_escaped(
 			ret += fprintf(fp, "\\\"");
 		else if (c == '\0')
 			ret += fprintf(fp, "\\0");
-		else if (c >= 0x20 && c <= 0x7E)
+		else if (isprint(c))
 			ret += fprintf(fp, "%c", c);
 		else
 			ret += fprintf(fp, "\\x%02x", c);

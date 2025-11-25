@@ -164,6 +164,12 @@
 # define ERESTART_RESTARTBLOCK 516
 
 // ---
+// Typedefs
+// ---
+
+TYPEDEF_LIST(char, bytes);
+
+// ---
 // Function declarations
 // ---
 
@@ -232,6 +238,17 @@ char	*read_process(
 			pid_t pid,
 			uint64_t addr,
 			size_t size
+			);
+
+/**
+ * @brief Read memory string from a traced process.
+ * @param pid The process ID to read from.
+ * @param addr The memory address in the target process.
+ * @return Allocated buffer with the data, or NULL on error. Must be freed.
+ */
+char	*read_process_str(
+			pid_t pid,
+			uint64_t addr
 			);
 
 /**

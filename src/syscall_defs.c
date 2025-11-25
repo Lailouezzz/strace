@@ -248,8 +248,8 @@ SR_SYS_entry(oldlstat, SYS_TYPE_INT, )
 SR_SYS_entry(oldolduname, SYS_TYPE_INT, )
 SR_SYS_entry(oldstat, SYS_TYPE_INT, )
 SR_SYS_entry(olduname, SYS_TYPE_INT, )
-SR_SYS_entry(open, SYS_TYPE_INT, )
-SR_SYS_entry(openat, SYS_TYPE_INT, )
+SR_SYS_entry(open, SYS_TYPE_INT, -SYS_TYPE_STRING, -SYS_TYPE_INT) // TODO: mode_t
+SR_SYS_entry(openat, SYS_TYPE_INT, -SYS_TYPE_INT, -SYS_TYPE_STRING, -SYS_TYPE_INT) // TODO: mode_t
 SR_SYS_entry(openat2, SYS_TYPE_INT, )
 SR_SYS_entry(open_by_handle_at, SYS_TYPE_INT, )
 SR_SYS_entry(open_tree, SYS_TYPE_INT, )
