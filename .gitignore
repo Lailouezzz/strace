@@ -3,7 +3,7 @@ Makefile.cfg
 
 # Binary
 build/
-strace
+ft_strace
 
 # clangd
 .cache/
