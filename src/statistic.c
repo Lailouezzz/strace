@@ -173,14 +173,23 @@ static int	_stat_print_stat(
 	int	tmp;
 	int	ret = 0;
 
-	TRY_SILENT(tmp = logger_log("%6.2f %11.6f %11ld %9ld %9ld %s\n",
+	TRY_SILENT(tmp = logger_log("%6.2f %11.6f %11ld %9ld",
 		total->time != 0 ? (stat->time / (float)total->time) * 100.f : 0.f,
 		stat->time / 1000000.0,
 		stat->calls != 0 ? stat->time / stat->calls : 0,
-		stat->calls,
-		stat->errors,
-		stat->scd != NULL ? stat->scd->name : "total"));
+		stat->calls));
 	ret += tmp;
+	if (stat->errors != 0) {
+		TRY_SILENT(tmp = logger_log(" %9ld %s\n",
+			stat->errors,
+			stat->scd != NULL ? stat->scd->name : "total"));
+		ret += tmp;
+	} else {
+		TRY_SILENT(tmp = logger_log(" %9s %s\n",
+			"",
+			stat->scd != NULL ? stat->scd->name : "total"));
+		ret += tmp;
+	}
 	return (ret);
 }
 
