@@ -31,4 +31,5 @@ LOG_FUNC_entry(ARGV)
 LOG_FUNC_entry(ENVP)
 LOG_FUNC_entry(ACCESS_MODE)
 LOG_FUNC_entry(SIGNAL)
+LOG_FUNC_entry(PAGE_OFF)
 };
