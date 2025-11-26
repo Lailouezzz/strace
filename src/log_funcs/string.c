@@ -15,7 +15,7 @@ LOG_FUNC_impl(STRING) {
 
 	str = read_process_str(sci->pid, value);
 	if (str == NULL)
-		return (LOG_PRINT("NULL"));
+		return (log_func_PTR(value, sci, SYS_TYPE_PTR));
 	TRY_SILENT(tmp = LOG_PRINT("\""));
 	ret += tmp;
 	TRY_SILENT(tmp = fprint_escaped(LOG_FILE, str, strlen(str)));

@@ -32,7 +32,7 @@ LOG_FUNC_impl(MEMSEG) {
 	size = _get_size(sci, sys_type);
 	data = read_process(sci->pid, value, MIN(size, MAX_MEMSEG_LEN));
 	if (data == NULL)
-		return (LOG_PRINT("NULL"));
+		return (log_func_PTR(value, sci, SYS_TYPE_PTR));
 	TRY_SILENT(tmp = LOG_PRINT("\""));
 	ret += tmp;
 	TRY_SILENT(tmp = fprint_escaped(LOG_FILE, data, MIN(size, MAX_MEMSEG_LEN)));
