@@ -34,8 +34,8 @@
  * @brief Architecture personality types.
  */
 typedef enum arch_pers_e {
-	PERS_i386,    /**< 32-bit i386 personality. */
 	PERS_x86_64,  /**< 64-bit x86_64 personality. */
+	PERS_i386,    /**< 32-bit i386 personality. */
 	PERS__COUNT,  /**< Number of personalities. */
 }	arch_pers_t;
 

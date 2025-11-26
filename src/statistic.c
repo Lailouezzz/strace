@@ -120,15 +120,21 @@ int		stat_add(
 int	stat_print_summary(void) {
 	int			tmp;
 	int			ret = 0;
-	stat_t		(*pers_stats)[];
+	stat_t		(*pers_stats)[ELEM_COUNT(g_syscall_defs)];
 	list_stat_t	stats = list_new();
 	stat_t		**stat;
 	stat_t		total;
+	arch_pers_t	pers;
 
 	array_foreach(_sc_pers_stats, pers_stats) {
 		TRY_SILENT(_stat_process(*pers_stats, ELEM_COUNT(*_sc_pers_stats), &stats, &total));
 		if (stats.len == 0)
 			continue ;
+		pers = pers_stats - _sc_pers_stats;
+		if (pers != PERS_x86_64) {
+			TRY_SILENT(tmp = logger_log("System call usage summary for %s mode:\n", pers_get_name(pers)));
+			ret += tmp;
+		}
 		TRY_SILENT(tmp = logger_log("%6s %11s %11s %9s %9s %s\n",
 					"% time", "seconds", "usecs/call", "calls", "errors", "syscall"));
 		ret += tmp;

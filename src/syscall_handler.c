@@ -84,6 +84,7 @@ int	syscall_handle_out(
 	TRY(logger_log_syscall_out(sci, _cur_write));
 	if (!WIFEXITED(g_ctx.cstatus) && !WIFSIGNALED(g_ctx.cstatus)) {
 		stat.sci = *sci;
+		stat.sci.pers = _cur_pers;
 		stat.time = time;
 		TRY(stat_add(&stat));
 	}
