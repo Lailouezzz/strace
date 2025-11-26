@@ -142,6 +142,8 @@
  */
 # define ELEM_COUNT(container) (sizeof(container) / sizeof(*container))
 
+# define CASE_STR(val) case val: return (#val)
+
 /**
  * @brief Mark a variable as unused.
  */
@@ -234,7 +236,7 @@ char	*search_exec(
  * @param size The number of bytes to read.
  * @return Allocated buffer with the data, or NULL on error. Must be freed.
  */
-char	*read_process(
+void	*read_process(
 			pid_t pid,
 			uint64_t addr,
 			size_t size

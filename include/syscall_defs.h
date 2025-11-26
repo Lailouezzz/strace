@@ -47,20 +47,28 @@
  * @brief Syscall argument types for logging.
  */
 typedef enum syscall_type_e {
-	SYS_TYPE_NONE = 0,   /**< No type / unused argument. */
-	SYS_TYPE_INT,        /**< Signed integer. */
-	SYS_TYPE_SIZE,       /**< size_t/off_t. */
-	SYS_TYPE_SSIZE,      /**< ssize_t. */
-	SYS_TYPE_MMAP_PROT,  /**< mmap() prot. */
-	SYS_TYPE_MMAP_FLAGS, /**< mmap() flags. */
-	SYS_TYPE_FD,         /**< File descriptor. */
-	SYS_TYPE_HEX,        /**< Hexadecimal value. */
-	SYS_TYPE_PTR,        /**< Pointer. */
-	SYS_TYPE_STRING,     /**< String pointer. */
-	SYS_TYPE_MEMSEG,     /**< Memory segment. */
-	SYS_TYPE_OPEN_FLAGS, /**< open() flags. */
-	SYS_TYPE_OPEN_MODE,  /**< open() mode. */
-	SYS_TYPE__COUNT      /**< Number of types. */
+	SYS_TYPE_NONE = 0,      /**< No type / unused argument. */
+	SYS_TYPE_INT,           /**< Signed integer. */
+	SYS_TYPE_SIZE,          /**< size_t/off_t. */
+	SYS_TYPE_SSIZE,         /**< ssize_t. */
+	SYS_TYPE_MMAP_PROT,     /**< mmap() prot. */
+	SYS_TYPE_MMAP_FLAGS,    /**< mmap() flags. */
+	SYS_TYPE_FD,            /**< File descriptor. */
+	SYS_TYPE_HEX,           /**< Hexadecimal value. */
+	SYS_TYPE_PTR,           /**< Pointer. */
+	SYS_TYPE_STRING,        /**< String pointer. */
+	SYS_TYPE_MEMSEG,        /**< Memory segment. */
+	SYS_TYPE_OPEN_FLAGS,    /**< open() flags. */
+	SYS_TYPE_OPEN_MODE,     /**< open() mode. */
+	SYS_TYPE_AT_FLAGS,      /**< stat() flags. */
+	SYS_TYPE_STAT_STRUCT,   /**< struct stat. */
+	SYS_TYPE_OFF,           /**< off_t. */
+	SYS_TYPE_LONG,          /**< long. */
+	SYS_TYPE_ARCH_CODE,     /**< arch_prctl() code. */
+	SYS_TYPE_ARGV,          /**< String array (argv). */
+	SYS_TYPE_ENVP,          /**< Environment array (envp, shows count only). */
+	SYS_TYPE_ACCESS_MODE,   /**< access() mode flags. */
+	SYS_TYPE__COUNT         /**< Number of types. */
 }	syscall_type_t;
 
 /**

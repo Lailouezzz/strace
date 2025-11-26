@@ -358,7 +358,7 @@ char	*read_process_str(
 	return (data.data);
 }
 
-char	*read_process(
+void	*read_process(
 			pid_t pid,
 			uint64_t addr,
 			size_t size

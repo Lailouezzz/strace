@@ -19,9 +19,25 @@
 // Local variable
 // ---
 
+/**
+ * @brief Current architecture personality.
+ */
 static int	_cur_pers = -1;
+
+/**
+ * @brief Current syscall definition.
+ */
 static const syscall_def_t	*_cur_scd = NULL;
+
+/**
+ * @brief Number of characters written during syscall entry logging.
+ */
 static int	_cur_write = 0;
+
+/**
+ * @brief Flag to track if execve was successfully executed.
+ */
+static bool	_execve_encountered = false;
 
 // ---
 // Static function declarations
@@ -48,7 +64,7 @@ int	syscall_handle_in(
 	TRY(pers_get_sci(pid, sci));
 	_cur_scd = sci->scd;
 	_syscall_handle_pers_change(sci->pers, pid);
-	if (_cur_scd == &g_syscall_defs[SR_SYS_execve])
+	if (_cur_scd == &g_syscall_defs[SR_SYS_execve] && !_execve_encountered)
 		(logger_should_log_event(true), stat_should_save(true));
 	TRY(_cur_write = logger_log_syscall_in(sci));
 	return (0);
@@ -71,8 +87,10 @@ int	syscall_handle_out(
 		stat.time = time;
 		TRY(stat_add(&stat));
 	}
-	if (sci->errnr != 0 && _cur_scd == &g_syscall_defs[SR_SYS_execve])
+	if (sci->errnr != 0 && _cur_scd == &g_syscall_defs[SR_SYS_execve] && !_execve_encountered)
 		(logger_should_log_event(false), stat_should_save(false));
+	if (_cur_scd == &g_syscall_defs[SR_SYS_execve])
+		_execve_encountered = true;
 	_syscall_handle_pers_change(sci->pers, pid);
 	return (0);
 }

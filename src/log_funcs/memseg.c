@@ -31,7 +31,7 @@ LOG_FUNC_impl(MEMSEG) {
 
 	size = _get_size(sci, sys_type);
 	data = read_process(sci->pid, value, MIN(size, MAX_MEMSEG_LEN));
-	if (data == NULL)
+	if (data == NULL && size != 0)
 		return (log_func_PTR(value, sci, SYS_TYPE_PTR));
 	TRY_SILENT(tmp = LOG_PRINT("\""));
 	ret += tmp;
