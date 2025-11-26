@@ -68,6 +68,7 @@ typedef enum syscall_type_e {
 	SYS_TYPE_ARGV,          /**< String array (argv). */
 	SYS_TYPE_ENVP,          /**< Environment array (envp, shows count only). */
 	SYS_TYPE_ACCESS_MODE,   /**< access() mode flags. */
+	SYS_TYPE_SIGNAL,        /**< Signal name (SIGINT, HUP, QUIT). */
 	SYS_TYPE__COUNT         /**< Number of types. */
 }	syscall_type_t;
 

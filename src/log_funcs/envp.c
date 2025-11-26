@@ -29,6 +29,7 @@ LOG_FUNC_impl(ENVP) {
 		buf = read_process_str(sci->pid, uptr);
 		if (buf == NULL)
 			return (log_func_PTR(value, sci, SYS_TYPE_PTR));
+		free(buf);
 		envp += reg_size;
 		++count;
 	}
